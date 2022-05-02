@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <string>
+#include <vulkan_renderer.hpp>
 
 namespace GameEngine {
 class Game {
