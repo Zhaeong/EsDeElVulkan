@@ -22,6 +22,15 @@ public:
 
   VkDebugUtilsMessengerEXT debugMessenger;
 
+  // actual physical device
+  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+  // logical device
+  VkDevice logicalDevice;
+
+  //=========
+  // Functions
+  //=========
+
   VulkanDevice(SDL_Window *sdlWindow);
   ~VulkanDevice();
 
@@ -35,6 +44,9 @@ public:
 
   std::vector<const char *> getRequiredVkExtensions();
 
+  //==============================================
+  // Debug functions
+  //==============================================
   void populateDebugMessengerCreateInfo(
       VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
@@ -58,6 +70,12 @@ public:
   DestroyDebugUtilsMessengerEXT(VkInstance instance,
                                 VkDebugUtilsMessengerEXT debugMessenger,
                                 const VkAllocationCallbacks *pAllocator);
+  //
+  //==================================================
+  // Device functions
+  //
+  void pickPhysicalDevice();
+  void createLogicalDevice();
 };
 
 } // namespace VulkanStuff
