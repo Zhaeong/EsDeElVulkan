@@ -14,6 +14,7 @@ public:
   bool isRunning;
 
   SDL_Window *window;
+  VulkanStuff::VulkanRenderer *vulkanRenderer;
 
   Game();
   ~Game();

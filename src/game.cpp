@@ -10,11 +10,13 @@ Game::Game() {
   window = SDL_CreateWindow("SDL Vulkan Sample", 0, 0, WIDTH, HEIGHT,
                             SDL_WINDOW_VULKAN);
 
+  vulkanRenderer = new VulkanStuff::VulkanRenderer(window);
+
   isRunning = true;
 }
 
 Game::~Game() {
-
+  delete vulkanRenderer;
   SDL_DestroyWindow(window);
   SDL_Quit();
 }
@@ -87,7 +89,7 @@ std::string Game::getEvent() {
     }
   }
 
-  std::cout << "Event: " << eventName << "\n";
+  // std::cout << "Event: " << eventName << "\n";
   return eventName;
 }
 } // namespace GameEngine
