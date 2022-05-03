@@ -6,9 +6,23 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_vulkan.h>
 #include <iostream>
+#include <optional>
+#include <set>
+#include <string>
 #include <vector>
-
 namespace VulkanStuff {
+
+struct QueueFamilyIndices {
+  std::optional<uint32_t> graphicsFamily;
+  std::optional<uint32_t> presentFamily;
+};
+
+struct SwapChainSupportDetails {
+  VkSurfaceCapabilitiesKHR capabilities;
+  std::vector<VkSurfaceFormatKHR> formats;
+  std::vector<VkPresentModeKHR> presentModes;
+};
+
 class VulkanDevice {
 
 public:
@@ -22,10 +36,21 @@ public:
 
   VkDebugUtilsMessengerEXT debugMessenger;
 
+  // Device variables
+
   // actual physical device
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   // logical device
   VkDevice logicalDevice;
+
+  std::vector<const char *> deviceExtensions = {
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+  VkSurfaceKHR surface;
+
+  // Queues
+  VkQueue graphicsQueue;
+  VkQueue presentQueue;
 
   //=========
   // Functions
@@ -70,12 +95,19 @@ public:
   DestroyDebugUtilsMessengerEXT(VkInstance instance,
                                 VkDebugUtilsMessengerEXT debugMessenger,
                                 const VkAllocationCallbacks *pAllocator);
+
+  void createSurface();
   //
-  //==================================================
+  //==============================================u===
   // Device functions
   //
   void pickPhysicalDevice();
   void createLogicalDevice();
+
+  bool isDeviceSuitable(VkPhysicalDevice device);
+  QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+  bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+  SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 };
 
 } // namespace VulkanStuff
