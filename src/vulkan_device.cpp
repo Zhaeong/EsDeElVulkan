@@ -220,7 +220,8 @@ void VulkanDevice::pickPhysicalDevice() {
   }
 
   if (physicalDevice == VK_NULL_HANDLE) {
-    throw std::runtime_error("Failed to find Physical Device");
+    throw std::runtime_error(
+        "Failed to find Physical Device with all required features");
   } else {
 
     VkPhysicalDeviceProperties deviceProperties;
@@ -325,6 +326,8 @@ VulkanDevice::querySwapChainSupport(VkPhysicalDevice device) {
     details.formats.resize(formatCount);
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount,
                                          details.formats.data());
+  } else {
+    std::cout << "Swapchain Support, has no formats";
   }
 
   uint32_t presentModeCount;
@@ -335,6 +338,8 @@ VulkanDevice::querySwapChainSupport(VkPhysicalDevice device) {
     details.presentModes.resize(presentModeCount);
     vkGetPhysicalDeviceSurfacePresentModesKHR(
         device, surface, &presentModeCount, details.presentModes.data());
+  } else {
+    std::cout << "Swapchain Support, has no present modes";
   }
   return details;
 }
