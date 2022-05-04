@@ -19,7 +19,8 @@ public:
                                   vulkanDevice.surface};
 
   VulkanPipeline vulkanPipeline{vulkanDevice.logicalDevice,
-                                vulkanSwapChain.swapChainExtent};
+                                vulkanSwapChain.swapChainExtent,
+                                vulkanSwapChain.swapChainImageFormat};
 
   VulkanRenderer(SDL_Window *sdlWindow);
 };

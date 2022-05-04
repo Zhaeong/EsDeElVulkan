@@ -1,5 +1,6 @@
 #pragma once
 #include <utils.hpp>
+#include <vulkan_renderpass.hpp>
 
 namespace VulkanStuff {
 class VulkanPipeline {
@@ -10,11 +11,16 @@ public:
 
   // From VulkanSwapChain ===============================
   VkExtent2D swapChainExtent;
+  VkFormat swapChainImageFormat;
   //    ============================================
 
   VkPipelineLayout pipelineLayout;
+  VulkanRenderPass *vulkanRenderPass;
 
-  VulkanPipeline(VkDevice inputDevice, VkExtent2D inputSwapChainExtent);
+  VkPipeline graphicsPipeline;
+
+  VulkanPipeline(VkDevice inputDevice, VkExtent2D inputSwapChainExtent,
+                 VkFormat inputSwapChainImageFormat);
   ~VulkanPipeline();
 
   void createGraphicsPipeline();
