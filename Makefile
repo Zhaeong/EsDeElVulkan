@@ -28,7 +28,8 @@ OBJDIR = obj
 BINDIR = bin
 HDRDIR = include
 
-STB_INCLUDE_PATH =  D:\Github\VulkanTutalong\external	
+STB_INCLUDE_PATH =  D:\Github\EsDeElVulkan\external	
+#WORKSPACE_ROOT =  D:\Github\EsDeElVulkan
 
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 

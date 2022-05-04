@@ -242,10 +242,12 @@ bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device) {
   std::cout << "Device Name: " << deviceProperties.deviceName
             << " Device ID: " << deviceProperties.deviceID << "\n";
 
-  QueueFamilyIndices indices = findQueueFamilies(device);
+  Utils::QueueFamilyIndices indices = Utils::findQueueFamilies(device, surface);
 
   bool swapChainAdequate = false;
-  SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+  Utils::SwapChainSupportDetails swapChainSupport =
+      Utils::querySwapChainSupport(device, surface);
+
   swapChainAdequate = !swapChainSupport.formats.empty() &&
                       !swapChainSupport.presentModes.empty();
 
@@ -255,39 +257,6 @@ bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device) {
          deviceFeatures.samplerAnisotropy;
 }
 
-QueueFamilyIndices VulkanDevice::findQueueFamilies(VkPhysicalDevice device) {
-  QueueFamilyIndices indices;
-
-  // Queues are what you submit command buffers to, and a queue family describes
-  // a set of queues that do a certain thing e.g. graphics for draw calls
-  uint32_t queueFamilyCount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-  std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-
-  vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
-                                           queueFamilies.data());
-
-  for (int i = 0; i < queueFamilies.size(); i++) {
-    if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      indices.graphicsFamily = i;
-      std::cout << "Graphics Queue Index: " << i << " Can create queuecount"
-                << queueFamilies[i].queueCount << "\n";
-    }
-    // Find if the device supports window system and present images to the
-    // surface we created
-    VkBool32 presentSupport = false;
-    // To determine whether a queue family of a physical device supports
-    // presentation to a given surface
-    vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-    if (presentSupport) {
-      indices.presentFamily = i;
-      std::cout << "Present Queue family Index: " << i << " Queuecount"
-                << queueFamilies[i].queueCount << "\n";
-    }
-  }
-  return indices;
-}
 bool VulkanDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
   uint32_t extensionCount;
   vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
@@ -312,42 +281,11 @@ bool VulkanDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
   return requiredExtensions.empty();
 }
 
-SwapChainSupportDetails
-VulkanDevice::querySwapChainSupport(VkPhysicalDevice device) {
-  SwapChainSupportDetails details;
-
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
-                                            &details.capabilities);
-
-  uint32_t formatCount;
-  vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
-
-  if (formatCount != 0) {
-    details.formats.resize(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount,
-                                         details.formats.data());
-  } else {
-    std::cout << "Swapchain Support, has no formats";
-  }
-
-  uint32_t presentModeCount;
-  vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount,
-                                            nullptr);
-
-  if (presentModeCount != 0) {
-    details.presentModes.resize(presentModeCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(
-        device, surface, &presentModeCount, details.presentModes.data());
-  } else {
-    std::cout << "Swapchain Support, has no present modes";
-  }
-  return details;
-}
-
 void VulkanDevice::createLogicalDevice() {
 
   // Specifying queues to be created
-  QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+  Utils::QueueFamilyIndices indices =
+      Utils::findQueueFamilies(physicalDevice, surface);
 
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
