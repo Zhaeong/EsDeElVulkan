@@ -1,8 +1,10 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+//#include <string>
 #include <vulkan/vulkan.h>
 #include <vulkan_device.hpp>
+#include <vulkan_pipeline.hpp>
 #include <vulkan_swapchain.hpp>
 
 namespace VulkanStuff {
@@ -15,6 +17,9 @@ public:
   VulkanSwapChain vulkanSwapChain{window, vulkanDevice.physicalDevice,
                                   vulkanDevice.logicalDevice,
                                   vulkanDevice.surface};
+
+  VulkanPipeline vulkanPipeline{vulkanDevice.logicalDevice,
+                                vulkanSwapChain.swapChainExtent};
 
   VulkanRenderer(SDL_Window *sdlWindow);
 };

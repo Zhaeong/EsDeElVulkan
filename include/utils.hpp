@@ -28,6 +28,6 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
 
 VkImageView createImageView(VkDevice device, VkImage image, VkFormat format);
 
-std::vector<char> readFile(const std::string &filename);
+std::vector<char> readFile(std::string filePath);
 
 } // namespace Utils
