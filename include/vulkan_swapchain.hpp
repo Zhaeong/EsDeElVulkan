@@ -24,6 +24,13 @@ public:
   VkExtent2D swapChainExtent;
   std::vector<VkImageView> swapChainImageViews;
 
+  // Locks
+  VkSemaphore imageAvailableSemaphore;
+  VkSemaphore renderFinishedSemaphore;
+  VkFence inFlightFence;
+
+  // Functions
+
   VulkanSwapChain(SDL_Window *sdlWindow, VkPhysicalDevice inputPhysicalDevice,
                   VkDevice inputDevice, VkSurfaceKHR inputSurface);
   ~VulkanSwapChain();
@@ -40,6 +47,8 @@ public:
 
   void createSwapChain();
   void createSwapChainImageViews();
+
+  void createSyncObjects();
 };
 
 } // namespace VulkanStuff

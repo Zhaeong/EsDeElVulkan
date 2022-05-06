@@ -10,12 +10,17 @@ VulkanSwapChain::VulkanSwapChain(SDL_Window *sdlWindow,
       device{inputDevice}, surface{inputSurface} {
   createSwapChain();
   createSwapChainImageViews();
+  createSyncObjects();
 }
 VulkanSwapChain::~VulkanSwapChain() {
   for (auto imageView : swapChainImageViews) {
     vkDestroyImageView(device, imageView, nullptr);
   }
   vkDestroySwapchainKHR(device, swapChain, nullptr);
+
+  vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
+  vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
+  vkDestroyFence(device, inFlightFence, nullptr);
 }
 
 VkSurfaceFormatKHR VulkanSwapChain::chooseSwapSurfaceFormat(
@@ -140,6 +145,25 @@ void VulkanSwapChain::createSwapChainImageViews() {
     swapChainImageViews[i] = Utils::createImageView(device, swapChainImages[i],
                                                     swapChainImageFormat);
     VkImageViewCreateInfo createInfo{};
+  }
+}
+
+void VulkanSwapChain::createSyncObjects() {
+  VkSemaphoreCreateInfo semaphoreInfo{};
+  semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+  VkFenceCreateInfo fenceInfo{};
+  fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+  if (vkCreateSemaphore(device, &semaphoreInfo, nullptr,
+                        &imageAvailableSemaphore) != VK_SUCCESS ||
+      vkCreateSemaphore(device, &semaphoreInfo, nullptr,
+                        &renderFinishedSemaphore) != VK_SUCCESS ||
+      vkCreateFence(device, &fenceInfo, nullptr, &inFlightFence) !=
+          VK_SUCCESS) {
+
+    throw std::runtime_error("failed to create semaphores!");
   }
 }
 

@@ -18,10 +18,24 @@ public:
                                   vulkanDevice.logicalDevice,
                                   vulkanDevice.surface};
 
-  VulkanPipeline vulkanPipeline{vulkanDevice.logicalDevice,
+  VulkanPipeline vulkanPipeline{vulkanDevice.physicalDevice,
+                                vulkanDevice.logicalDevice,
+                                vulkanDevice.surface,
+                                vulkanDevice.graphicsQueue,
                                 vulkanSwapChain.swapChainExtent,
-                                vulkanSwapChain.swapChainImageFormat};
+                                vulkanSwapChain.swapChainImageFormat,
+                                vulkanSwapChain.swapChainImageViews};
+
+  uint32_t currentImageIndex;
 
   VulkanRenderer(SDL_Window *sdlWindow);
+  ~VulkanRenderer();
+
+  void beginRenderPass(VkCommandBuffer commandBuffer);
+  void endRenderPass(VkCommandBuffer commandBuffer);
+  void drawObjects(VkCommandBuffer commandBuffer);
+  void endDrawingCommandBuffer(VkCommandBuffer commandBuffer);
+
+  void drawFrame();
 };
 } // namespace VulkanStuff

@@ -28,7 +28,10 @@ void Game::run() {
 
   while (isRunning) {
     std::string event = getEvent();
+    vulkanRenderer->drawFrame();
   }
+
+  delete vulkanRenderer;
 }
 
 std::string Game::getEvent() {
