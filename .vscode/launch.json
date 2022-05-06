@@ -16,7 +16,7 @@
             "name": "DebugLinux",
             "type": "gdb",
             "request": "launch",
-            "target": "./bin/VulkanTry",
+            "target": "./bin/vkGame",
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText"
         }

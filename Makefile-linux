@@ -3,7 +3,7 @@
 #  Use make -f Makefile-linux -B
 #
 #  sudo apt install libglm-dev
-#  sudo apt install libglfw3-dev
+#  sudo apt-get install libsdl2-dev
 #  sudo apt install vulkan-validationlayers-dev spirv-tools
 #  mkdir bin
 #  mkdir obj
@@ -29,7 +29,9 @@ CC = g++
 #CFLAGS = -Wall -Wextra -Wshadow -ggdb -O0 -g
 CFLAGS = -O3 -std=c++17 -fno-common -g
 #LINKERS = -lmingw32 -lglfw3 -lgdi32 -lvulkan-1 
-LINKERS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXrandr
+#-ldl -lpthread -lX11 -lXrandr
+
+LINKERS = -lSDL2main -lSDL2 -lvulkan 
 
 
 SRCDIR = src
@@ -37,7 +39,8 @@ OBJDIR = obj
 BINDIR = bin
 HDRDIR = include
 
-STB_INCLUDE_PATH =  /home/owen/Documents/VulkanTutalong/external
+STB_INCLUDE_PATH =  /home/owen/Documents/EsDeElVulkan/external
+SDK_PATH = /home/owen/Documents/1.3.211.0/x86_64
 
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 
@@ -48,14 +51,14 @@ OBJFILES = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 SRCFILES = $(patsubst $(SRCDIR)/%,%,$(SRCS))
 HEADERFILES = $(patsubst $(HDRDIR)/%,%,$(HEADERS))
 
-EXENAME = VulkanTry
+EXENAME = vkGame
 
 INCLUDES = -Iinclude                                                     \
-		   -I/home/owen/Documents/1.3.211.0/x86_64/include								 \
+		   -I$(SDK_PATH)/include								 \
 		   -I$(STB_INCLUDE_PATH)
 
 
-LIBS = -L/home/owen/Documents/1.3.211.0/x86_64/lib						
+LIBS = -L$(SDK_PATH)/lib						
 
 #Need to put the linkers at the end of the call
 $(BINDIR)/$(EXENAME): $(OBJFILES)

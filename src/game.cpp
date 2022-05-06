@@ -28,10 +28,12 @@ void Game::run() {
 
   while (isRunning) {
     std::string event = getEvent();
+    std::cout << "Eventer: " << event << "\n";
     vulkanRenderer->drawFrame();
+//SDL_Delay(10000);
+  //  isRunning = false;
   }
 
-  delete vulkanRenderer;
 }
 
 std::string Game::getEvent() {
@@ -65,6 +67,7 @@ std::string Game::getEvent() {
         break;
       case SDLK_e:
         eventName = "KEY_E";
+        std::cout << "Event: " << eventName << "\n";
         break;
       default:
         eventName = "KEY_DOWN";
@@ -93,7 +96,8 @@ std::string Game::getEvent() {
     }
   }
 
-  // std::cout << "Event: " << eventName << "\n";
+  //std::cout << "Event: " << eventName << "\n";
+  
   return eventName;
 }
 } // namespace GameEngine
