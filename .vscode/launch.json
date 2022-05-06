@@ -19,6 +19,14 @@
             "target": "./bin/vkGame",
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText"
+        },
+        {
+            "name": "DebugLinuxCPP",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/owen/Documents/EsDeElVulkan/bin/vkGame",
+            "cwd": "${workspaceRoot}",
+            "valuesFormatting": "parseText"
         }
     ]
 }
