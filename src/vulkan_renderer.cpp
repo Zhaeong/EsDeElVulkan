@@ -91,19 +91,69 @@ void VulkanRenderer::endDrawingCommandBuffer(
                        */
 }
 
+void VulkanRenderer::cleanupSwapChain() {
+  vkDestroyPipeline(vulkanDevice.logicalDevice, vulkanPipeline.graphicsPipeline,
+                    nullptr);
+  vkDestroyPipelineLayout(vulkanDevice.logicalDevice,
+                          vulkanPipeline.pipelineLayout, nullptr);
+
+  for (auto framebuffer : vulkanPipeline.swapChainFramebuffers) {
+    vkDestroyFramebuffer(vulkanDevice.logicalDevice, framebuffer, nullptr);
+  }
+
+  delete vulkanPipeline.vulkanRenderPass;
+
+  for (size_t i = 0; i < vulkanSwapChain.swapChainImageViews.size(); i++) {
+    vkDestroyImageView(vulkanDevice.logicalDevice,
+                       vulkanSwapChain.swapChainImageViews[i], nullptr);
+  }
+
+  vkDestroySwapchainKHR(vulkanDevice.logicalDevice, vulkanSwapChain.swapChain,
+                        nullptr);
+}
+void VulkanRenderer::recreateSwapChain() {
+  std::cout << "Recreating Swapchain\n";
+
+  vkDeviceWaitIdle(vulkanDevice.logicalDevice);
+
+  cleanupSwapChain();
+
+  // recreateswapchain
+  vulkanSwapChain.createSwapChain();
+  vulkanSwapChain.createSwapChainImageViews();
+
+  // recreate renderpass
+  vulkanPipeline.vulkanRenderPass = new VulkanRenderPass(
+      vulkanDevice.logicalDevice, vulkanSwapChain.swapChainImageFormat);
+
+  // reassign swapchain vars for framebuffers recreation
+  vulkanPipeline.swapChainImageFormat = vulkanSwapChain.swapChainImageFormat;
+  vulkanPipeline.swapChainImageViews = vulkanSwapChain.swapChainImageViews;
+  vulkanPipeline.swapChainExtent = vulkanSwapChain.swapChainExtent;
+
+  vulkanPipeline.createGraphicsPipeline();
+  vulkanPipeline.createFramebuffers();
+}
+
 void VulkanRenderer::drawFrame() {
   std::cout << "Drawing frame: " << currentFrame << "\n";
   vkWaitForFences(vulkanDevice.logicalDevice, 1,
                   &vulkanSyncObject->inFlightFences[currentFrame], VK_TRUE,
                   UINT64_MAX);
 
-  vkResetFences(vulkanDevice.logicalDevice, 1,
-                &vulkanSyncObject->inFlightFences[currentFrame]);
-
-  vkAcquireNextImageKHR(
+  VkResult result = vkAcquireNextImageKHR(
       vulkanDevice.logicalDevice, vulkanSwapChain.swapChain, UINT64_MAX,
       vulkanSyncObject->imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE,
       &currentImage);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+    recreateSwapChain();
+    return;
+  } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+    throw std::runtime_error("failed to acquire swap chain image!");
+  }
+  vkResetFences(vulkanDevice.logicalDevice, 1,
+                &vulkanSyncObject->inFlightFences[currentFrame]);
 
   beginDrawingCommandBuffer(vulkanCommand->commandBuffers[currentFrame]);
 
@@ -137,7 +187,12 @@ void VulkanRenderer::drawFrame() {
   presentInfo.pImageIndices = &currentImage;
 
   presentInfo.pResults = nullptr; // Optional
-  vkQueuePresentKHR(vulkanDevice.presentQueue, &presentInfo);
+  result = vkQueuePresentKHR(vulkanDevice.presentQueue, &presentInfo);
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+    recreateSwapChain();
+  } else if (result != VK_SUCCESS) {
+    throw std::runtime_error("failed to present swap chain image!");
+  }
 
   currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

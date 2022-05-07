@@ -40,6 +40,7 @@ public:
   //===================================
 
   void createSwapChain();
+
   void createSwapChainImageViews();
 };
 

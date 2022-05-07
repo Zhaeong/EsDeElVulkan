@@ -51,6 +51,9 @@ public:
                                VkSemaphore renderFinishedSemaphore,
                                VkFence inFlightFence);
 
+  void cleanupSwapChain();
+  void recreateSwapChain();
+
   void drawFrame();
 };
 } // namespace VulkanStuff
