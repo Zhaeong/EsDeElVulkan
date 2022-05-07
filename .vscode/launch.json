@@ -13,6 +13,13 @@
             "valuesFormatting": "parseText"
         },
         {
+            "name": "DebugCPP",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "D:/Github/EsDeElVulkan/bin/vkGame.exe",
+            "cwd": "${workspaceRoot}"
+        },
+        {
             "name": "DebugLinux",
             "type": "gdb",
             "request": "launch",
@@ -25,8 +32,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/owen/Documents/EsDeElVulkan/bin/vkGame",
-            "cwd": "${workspaceRoot}",
-            "valuesFormatting": "parseText"
+            "cwd": "${workspaceRoot}"
         }
     ]
 }

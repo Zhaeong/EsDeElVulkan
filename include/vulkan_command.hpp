@@ -11,14 +11,14 @@ public:
   // ==============================
 
   VkCommandPool commandPool;
-  VkCommandBuffer commandBuffer;
+  std::vector<VkCommandBuffer> commandBuffers;
 
   VulkanCommand(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
-                VkSurfaceKHR inputSurface);
+                VkSurfaceKHR inputSurface, uint32_t number);
   ~VulkanCommand();
 
   void createCommandPool();
-  void createCommandBuffer();
+  void createCommandBuffers(uint32_t number);
 
   VkCommandBuffer beginSingleTimeCommands();
   void endSingleTimeCommands(VkCommandBuffer commandBuffer,

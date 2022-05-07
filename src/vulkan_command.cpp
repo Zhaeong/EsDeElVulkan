@@ -3,11 +3,12 @@
 
 namespace VulkanStuff {
 VulkanCommand::VulkanCommand(VkPhysicalDevice inputPhysicalDevice,
-                             VkDevice inputDevice, VkSurfaceKHR inputSurface)
+                             VkDevice inputDevice, VkSurfaceKHR inputSurface,
+                             uint32_t number)
     : physicalDevice{inputPhysicalDevice}, surface{inputSurface},
       device{inputDevice} {
   createCommandPool();
-  createCommandBuffer();
+  createCommandBuffers(number);
 }
 VulkanCommand::~VulkanCommand() {
   vkDestroyCommandPool(device, commandPool, nullptr);
@@ -28,14 +29,17 @@ void VulkanCommand::createCommandPool() {
   }
 }
 
-void VulkanCommand::createCommandBuffer() {
+void VulkanCommand::createCommandBuffers(uint32_t number) {
+
+  commandBuffers.resize(number);
+
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.commandPool = commandPool;
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  allocInfo.commandBufferCount = 1;
+  allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-  if (vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer) !=
+  if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) !=
       VK_SUCCESS) {
     throw std::runtime_error("failed to allocate command buffers!");
   }

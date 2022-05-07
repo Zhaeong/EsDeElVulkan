@@ -1,6 +1,5 @@
 #pragma once
 #include <utils.hpp>
-#include <vulkan_command.hpp>
 #include <vulkan_renderpass.hpp>
 
 namespace VulkanStuff {
@@ -24,8 +23,6 @@ public:
 
   VkPipeline graphicsPipeline;
   std::vector<VkFramebuffer> swapChainFramebuffers;
-
-  VulkanCommand *vulkanCommand;
 
   // Functions ============================
 

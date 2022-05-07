@@ -18,7 +18,7 @@ CC = g++
 #-ggdb compiles with debug symbols
 #-mwindows compiles without terminal
 #CFLAGS = -Wall -Wextra -Wshadow -ggdb -O0 -g
-CFLAGS = -O3 -std=c++17 -fno-common -g
+CFLAGS = -O3 -std=c++17 -fno-common -g -O0
 #LINKERS = -lmingw32 -lglfw3 -lgdi32 -lvulkan-1 
 LINKERS = -lvulkan-1 -lmingw32 -lSDL2main -lSDL2
 

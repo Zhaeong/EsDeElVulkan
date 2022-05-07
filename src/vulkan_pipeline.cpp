@@ -15,7 +15,6 @@ VulkanPipeline::VulkanPipeline(
   // Ive seperate renderpass into its own obj, hopefully for easier future
   // extensibility
   vulkanRenderPass = new VulkanRenderPass(device, swapChainImageFormat);
-  vulkanCommand = new VulkanCommand(physicalDevice, device, surface);
 
   createGraphicsPipeline();
   createFramebuffers();
@@ -23,7 +22,6 @@ VulkanPipeline::VulkanPipeline(
 VulkanPipeline::~VulkanPipeline() {
   // Make sure to clean up pointer objects
   delete vulkanRenderPass;
-  delete vulkanCommand;
 
   vkDestroyPipeline(device, graphicsPipeline, nullptr);
   vkDestroyPipelineLayout(device, pipelineLayout, nullptr);

@@ -2,17 +2,26 @@
 
 namespace VulkanStuff {
 
-VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {}
+VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
+  vulkanCommand =
+      new VulkanCommand(vulkanDevice.physicalDevice, vulkanDevice.logicalDevice,
+                        vulkanDevice.surface, MAX_FRAMES_IN_FLIGHT);
+
+  vulkanSyncObject =
+      new VulkanSyncObject(vulkanDevice.logicalDevice, MAX_FRAMES_IN_FLIGHT);
+}
 VulkanRenderer::~VulkanRenderer() {
   vkDeviceWaitIdle(vulkanDevice.logicalDevice);
+  delete vulkanCommand;
+  delete vulkanSyncObject;
 }
 
-void VulkanRenderer::beginRenderPass(VkCommandBuffer commandBuffer) {
+void VulkanRenderer::beginRenderPass(VkCommandBuffer commandBuffer,
+                                     uint32_t imageIndex) {
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass = vulkanPipeline.vulkanRenderPass->renderPass;
-  renderPassInfo.framebuffer =
-      vulkanPipeline.swapChainFramebuffers[currentImageIndex];
+  renderPassInfo.framebuffer = vulkanPipeline.swapChainFramebuffers[imageIndex];
 
   renderPassInfo.renderArea.offset = {0, 0};
   renderPassInfo.renderArea.extent = vulkanPipeline.swapChainExtent;
@@ -34,14 +43,29 @@ void VulkanRenderer::drawObjects(VkCommandBuffer commandBuffer) {
   vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 }
 
-void VulkanRenderer::endDrawingCommandBuffer(VkCommandBuffer commandBuffer) {
+void VulkanRenderer::beginDrawingCommandBuffer(VkCommandBuffer commandBuffer) {
+
+  if (vkResetCommandBuffer(commandBuffer, 0) != VK_SUCCESS) {
+    throw std::runtime_error("failed to reset command buffer!");
+  }
+  VkCommandBufferBeginInfo beginInfo{};
+  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  // telling driver about our onetime usage
+  beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+  vkBeginCommandBuffer(commandBuffer, &beginInfo);
+}
+
+void VulkanRenderer::endDrawingCommandBuffer(
+    VkCommandBuffer commandBuffer, VkSemaphore imageAvailableSemaphore,
+    VkSemaphore renderFinishedSemaphore, VkFence inFlightFence) {
   if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
     throw std::runtime_error("failed to record drawing command buffer!");
   }
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-  VkSemaphore waitSemaphores[] = {vulkanSwapChain.imageAvailableSemaphore};
+  VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
   VkPipelineStageFlags waitStages[] = {
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
   submitInfo.waitSemaphoreCount = 1;
@@ -51,49 +75,56 @@ void VulkanRenderer::endDrawingCommandBuffer(VkCommandBuffer commandBuffer) {
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &commandBuffer;
 
-  VkSemaphore signalSemaphores[] = {vulkanSwapChain.renderFinishedSemaphore};
+  VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
   if (vkQueueSubmit(vulkanDevice.graphicsQueue, 1, &submitInfo,
-                    vulkanSwapChain.inFlightFence) != VK_SUCCESS) {
+                    inFlightFence) != VK_SUCCESS) {
     throw std::runtime_error("failed to submit draw command buffer!");
   }
-  /* vkQueueWaitIdle(vulkanDevice.graphicsQueue);
+  /*
+  vkQueueWaitIdle(vulkanDevice.graphicsQueue);
 
-  vkFreeCommandBuffers(vulkanDevice.logicalDevice,
-                       vulkanPipeline.vulkanCommand->commandPool, 1,
-                       &commandBuffer);
+  vkFreeCommandBuffers(vulkanDevice.logicalDevice, vulkanCommand->commandPool,
+                       1, &commandBuffer);
                        */
 }
 
 void VulkanRenderer::drawFrame() {
-  vkWaitForFences(vulkanDevice.logicalDevice, 1, &vulkanSwapChain.inFlightFence,
-                  VK_TRUE, UINT64_MAX);
-  vkResetFences(vulkanDevice.logicalDevice, 1, &vulkanSwapChain.inFlightFence);
+  std::cout << "Drawing frame: " << currentFrame << "\n";
+  vkWaitForFences(vulkanDevice.logicalDevice, 1,
+                  &vulkanSyncObject->inFlightFences[currentFrame], VK_TRUE,
+                  UINT64_MAX);
 
-  vkAcquireNextImageKHR(vulkanDevice.logicalDevice, vulkanSwapChain.swapChain,
-                        UINT64_MAX, vulkanSwapChain.imageAvailableSemaphore,
-                        VK_NULL_HANDLE, &currentImageIndex);
+  vkResetFences(vulkanDevice.logicalDevice, 1,
+                &vulkanSyncObject->inFlightFences[currentFrame]);
 
-  // vkResetCommandBuffer(vulkanPipeline.vulkanCommand->commandBuffer, 0);
+  vkAcquireNextImageKHR(
+      vulkanDevice.logicalDevice, vulkanSwapChain.swapChain, UINT64_MAX,
+      vulkanSyncObject->imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE,
+      &currentImage);
 
-  VkCommandBuffer commandBuf =
-      vulkanPipeline.vulkanCommand->beginSingleTimeCommands();
+  beginDrawingCommandBuffer(vulkanCommand->commandBuffers[currentFrame]);
 
   /*
     vkCmdBindPipeline(commandBuf, VK_PIPELINE_BIND_POINT_GRAPHICS,
                       vulkanPipeline.graphicsPipeline);
                       */
 
-  beginRenderPass(commandBuf);
-  drawObjects(commandBuf);
-  endRenderPass(commandBuf);
-  endDrawingCommandBuffer(commandBuf);
+  beginRenderPass(vulkanCommand->commandBuffers[currentFrame], currentImage);
+  drawObjects(vulkanCommand->commandBuffers[currentFrame]);
+  endRenderPass(vulkanCommand->commandBuffers[currentFrame]);
+  endDrawingCommandBuffer(
+      vulkanCommand->commandBuffers[currentFrame],
+      vulkanSyncObject->imageAvailableSemaphores[currentFrame],
+      vulkanSyncObject->renderFinishedSemaphores[currentFrame],
+      vulkanSyncObject->inFlightFences[currentFrame]);
 
   // Now present the image
+  VkSemaphore signalSemaphores[] = {
+      vulkanSyncObject->renderFinishedSemaphores[currentFrame]};
 
-  VkSemaphore signalSemaphores[] = {vulkanSwapChain.renderFinishedSemaphore};
   VkPresentInfoKHR presentInfo{};
   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
@@ -103,9 +134,11 @@ void VulkanRenderer::drawFrame() {
   VkSwapchainKHR swapChains[] = {vulkanSwapChain.swapChain};
   presentInfo.swapchainCount = 1;
   presentInfo.pSwapchains = swapChains;
-  presentInfo.pImageIndices = &currentImageIndex;
+  presentInfo.pImageIndices = &currentImage;
 
   presentInfo.pResults = nullptr; // Optional
   vkQueuePresentKHR(vulkanDevice.presentQueue, &presentInfo);
+
+  currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 } // namespace VulkanStuff
