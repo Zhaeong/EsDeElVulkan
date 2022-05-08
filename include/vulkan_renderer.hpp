@@ -7,6 +7,7 @@
 #include <vulkan_device.hpp>
 #include <vulkan_pipeline.hpp>
 #include <vulkan_swapchain.hpp>
+
 #include <vulkan_syncobject.hpp>
 
 namespace VulkanStuff {

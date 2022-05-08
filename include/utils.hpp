@@ -5,6 +5,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+#include <SDL2/SDL.h>
+
 #include <fstream>
 
 namespace Utils {
@@ -29,5 +31,7 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
 VkImageView createImageView(VkDevice device, VkImage image, VkFormat format);
 
 std::vector<char> readFile(std::string filePath);
+
+void showWindowFlags(int flags);
 
 } // namespace Utils

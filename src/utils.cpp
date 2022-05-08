@@ -129,4 +129,37 @@ std::vector<char> readFile(std::string filePath) {
   return buffer;
 }
 
+void showWindowFlags(int flags) {
+
+  printf("\nFLAGS ENABLED: ( %d )\n", flags);
+  printf("=======================\n");
+  if (flags & SDL_WINDOW_FULLSCREEN)
+    printf("SDL_WINDOW_FULLSCREEN\n");
+  if (flags & SDL_WINDOW_OPENGL)
+    printf("SDL_WINDOW_OPENGL\n");
+  if (flags & SDL_WINDOW_SHOWN)
+    printf("SDL_WINDOW_SHOWN\n");
+  if (flags & SDL_WINDOW_HIDDEN)
+    printf("SDL_WINDOW_HIDDEN\n");
+  if (flags & SDL_WINDOW_BORDERLESS)
+    printf("SDL_WINDOW_BORDERLESS\n");
+  if (flags & SDL_WINDOW_RESIZABLE)
+    printf("SDL_WINDOW_RESIZABLE\n");
+  if (flags & SDL_WINDOW_MINIMIZED)
+    printf("SDL_WINDOW_MINIMIZED\n");
+  if (flags & SDL_WINDOW_MAXIMIZED)
+    printf("SDL_WINDOW_MAXIMIZED\n");
+  if (flags & SDL_WINDOW_INPUT_GRABBED)
+    printf("SDL_WINDOW_INPUT_GRABBED\n");
+  if (flags & SDL_WINDOW_INPUT_FOCUS)
+    printf("SDL_WINDOW_INPUT_FOCUS\n");
+  if (flags & SDL_WINDOW_MOUSE_FOCUS)
+    printf("SDL_WINDOW_MOUSE_FOCUS\n");
+  if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+    printf("SDL_WINDOW_FULLSCREEN_DESKTOP\n");
+  if (flags & SDL_WINDOW_FOREIGN)
+    printf("SDL_WINDOW_FOREIGN\n");
+  printf("=======================\n");
+}
+
 } // namespace Utils

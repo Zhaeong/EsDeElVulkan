@@ -114,6 +114,16 @@ void VulkanRenderer::cleanupSwapChain() {
 void VulkanRenderer::recreateSwapChain() {
   std::cout << "Recreating Swapchain\n";
 
+  Uint32 flags = SDL_GetWindowFlags(window);
+  Utils::showWindowFlags(flags);
+
+  // don't recreate swapchain if minimized
+  while (flags & SDL_WINDOW_MINIMIZED) {
+    flags = SDL_GetWindowFlags(window);
+    SDL_Event event;
+    SDL_WaitEvent(&event);
+  }
+
   vkDeviceWaitIdle(vulkanDevice.logicalDevice);
 
   cleanupSwapChain();
@@ -136,7 +146,7 @@ void VulkanRenderer::recreateSwapChain() {
 }
 
 void VulkanRenderer::drawFrame() {
-  std::cout << "Drawing frame: " << currentFrame << "\n";
+  // std::cout << "Drawing frame: " << currentFrame << "\n";
   vkWaitForFences(vulkanDevice.logicalDevice, 1,
                   &vulkanSyncObject->inFlightFences[currentFrame], VK_TRUE,
                   UINT64_MAX);
