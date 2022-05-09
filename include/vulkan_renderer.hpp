@@ -8,6 +8,7 @@
 #include <vulkan_pipeline.hpp>
 #include <vulkan_swapchain.hpp>
 
+#include <vulkan_buffer.hpp>
 #include <vulkan_syncobject.hpp>
 
 namespace VulkanStuff {
@@ -37,13 +38,23 @@ public:
 
   VulkanCommand *vulkanCommand;
   VulkanSyncObject *vulkanSyncObject;
+  VulkanBuffer *vulkanBuffer;
+
+  // Can be inputs from game =============
+
+  std::vector<Utils::Vertex> vertices;
+
+  //=====================================
 
   VulkanRenderer(SDL_Window *sdlWindow);
   ~VulkanRenderer();
 
   void beginRenderPass(VkCommandBuffer commandBuffer, uint32_t imageIndex);
   void endRenderPass(VkCommandBuffer commandBuffer);
+
   void drawObjects(VkCommandBuffer commandBuffer);
+  void drawFromVertices(VkCommandBuffer commandBuffer,
+                        std::vector<Utils::Vertex> vertices);
 
   void beginDrawingCommandBuffer(VkCommandBuffer commandBuffer);
 

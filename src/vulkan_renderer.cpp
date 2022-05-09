@@ -9,11 +9,22 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
 
   vulkanSyncObject =
       new VulkanSyncObject(vulkanDevice.logicalDevice, MAX_FRAMES_IN_FLIGHT);
+
+  vulkanBuffer =
+      new VulkanBuffer(vulkanDevice.physicalDevice, vulkanDevice.logicalDevice,
+                       vulkanDevice.graphicsQueue, vulkanCommand->commandPool);
+
+  vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+              {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+              {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+  vulkanBuffer->createVertexBuffer(vertices);
 }
 VulkanRenderer::~VulkanRenderer() {
   vkDeviceWaitIdle(vulkanDevice.logicalDevice);
   delete vulkanCommand;
   delete vulkanSyncObject;
+  delete vulkanBuffer;
 }
 
 void VulkanRenderer::beginRenderPass(VkCommandBuffer commandBuffer,
@@ -41,6 +52,18 @@ void VulkanRenderer::drawObjects(VkCommandBuffer commandBuffer) {
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                     vulkanPipeline.graphicsPipeline);
   vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+}
+
+void VulkanRenderer::drawFromVertices(VkCommandBuffer commandBuffer,
+                                      std::vector<Utils::Vertex> vertices) {
+  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    vulkanPipeline.graphicsPipeline);
+
+  VkBuffer vertexBuffers[] = {vulkanBuffer->vertexBuffer};
+  VkDeviceSize offsets[] = {0};
+  vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+  vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 }
 
 void VulkanRenderer::beginDrawingCommandBuffer(VkCommandBuffer commandBuffer) {
@@ -173,7 +196,10 @@ void VulkanRenderer::drawFrame() {
                       */
 
   beginRenderPass(vulkanCommand->commandBuffers[currentFrame], currentImage);
-  drawObjects(vulkanCommand->commandBuffers[currentFrame]);
+
+  //  drawObjects(vulkanCommand->commandBuffers[currentFrame]);
+  drawFromVertices(vulkanCommand->commandBuffers[currentFrame], vertices);
+
   endRenderPass(vulkanCommand->commandBuffers[currentFrame]);
   endDrawingCommandBuffer(
       vulkanCommand->commandBuffers[currentFrame],

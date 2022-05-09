@@ -19,9 +19,5 @@ public:
 
   void createCommandPool();
   void createCommandBuffers(uint32_t number);
-
-  VkCommandBuffer beginSingleTimeCommands();
-  void endSingleTimeCommands(VkCommandBuffer commandBuffer,
-                             VkQueue submitQueue);
 };
 } // namespace VulkanStuff

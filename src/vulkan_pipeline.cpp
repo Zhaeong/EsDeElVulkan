@@ -83,13 +83,22 @@ void VulkanPipeline::createGraphicsPipeline() {
   // Now we configure the stages of the pipeline
 
   // Defines the vertex input (usually buffer)
+
+  // We get the binding and attribute descriptions for the vertex input from the
+  // struct we created
+  auto bindingDescription = Utils::Vertex::getBindingDescription();
+  auto attributeDescriptions = Utils::Vertex::getAttributeDescriptions();
+
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vertexInputInfo.vertexBindingDescriptionCount = 0;
-  vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-  vertexInputInfo.vertexAttributeDescriptionCount = 0;
-  vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+  vertexInputInfo.vertexBindingDescriptionCount = 1;
+  vertexInputInfo.pVertexBindingDescriptions = &bindingDescription; // Optional
+
+  vertexInputInfo.vertexAttributeDescriptionCount =
+      static_cast<uint32_t>(attributeDescriptions.size());
+  vertexInputInfo.pVertexAttributeDescriptions =
+      attributeDescriptions.data(); // Optional
 
   // Input assembly, what kind of geometry (triange, line) will be drawn, and
   // primitive restart
