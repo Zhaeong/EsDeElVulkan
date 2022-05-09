@@ -1,15 +1,14 @@
 
 #pragma once
+
+// Main utils lib, can't include any game/application specific headers here
+#include <SDL2/SDL.h>
+#include <fstream>
+#include <glm/glm.hpp>
 #include <iostream>
 #include <optional>
 #include <vector>
 #include <vulkan/vulkan.h>
-
-#include <SDL2/SDL.h>
-
-#include <glm/glm.hpp>
-
-#include <fstream>
 
 namespace Utils {
 

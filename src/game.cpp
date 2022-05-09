@@ -64,10 +64,30 @@ std::string Game::getEvent() {
       case SDLK_DOWN:
         eventName = "MOVE_DOWN";
         break;
-      case SDLK_e:
+      case SDLK_e: {
         eventName = "KEY_E";
         std::cout << "Event: " << eventName << "\n";
+
+        std::vector<Utils::Vertex> vertices = {
+            {{0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+        vulkanRenderer->inputVertexBuffer(vertices);
         break;
+      }
+      case SDLK_q: {
+        eventName = "KEY_Q";
+        std::cout << "Event: " << eventName << "\n";
+
+        std::vector<Utils::Vertex> vertices = {
+            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+        vulkanRenderer->inputVertexBuffer(vertices);
+        break;
+      }
       default:
         eventName = "KEY_DOWN";
         break;

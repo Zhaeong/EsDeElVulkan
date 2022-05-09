@@ -85,6 +85,14 @@ void VulkanBuffer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer,
 }
 
 void VulkanBuffer::createVertexBuffer(std::vector<Utils::Vertex> vertices) {
+
+  // For recreation of vertex buffer, need to first kill the old vertex buffer,
+  // and also need to wait until queue is clear since current buffer might be
+  // used in the command buffer
+  vkQueueWaitIdle(graphicsQueue);
+  vkDestroyBuffer(device, vertexBuffer, nullptr);
+  vkFreeMemory(device, vertexBufferMemory, nullptr);
+
   VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
   // Create a staging buffer as source for cpu accessible then copy over to
@@ -110,4 +118,5 @@ void VulkanBuffer::createVertexBuffer(std::vector<Utils::Vertex> vertices) {
   vkDestroyBuffer(device, stagingBuffer, nullptr);
   vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
+
 } // namespace VulkanStuff

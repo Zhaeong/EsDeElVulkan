@@ -168,6 +168,13 @@ void VulkanRenderer::recreateSwapChain() {
   vulkanPipeline.createFramebuffers();
 }
 
+void VulkanRenderer::inputVertexBuffer(
+    std::vector<Utils::Vertex> inputVertices) {
+
+  vertices = inputVertices;
+  vulkanBuffer->createVertexBuffer(inputVertices);
+}
+
 void VulkanRenderer::drawFrame() {
   // std::cout << "Drawing frame: " << currentFrame << "\n";
   vkWaitForFences(vulkanDevice.logicalDevice, 1,
@@ -232,4 +239,5 @@ void VulkanRenderer::drawFrame() {
 
   currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
+
 } // namespace VulkanStuff

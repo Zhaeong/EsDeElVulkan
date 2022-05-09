@@ -18,8 +18,11 @@ public:
   VkCommandPool commandPool;
   //============================
 
-  VkBuffer vertexBuffer;
-  VkDeviceMemory vertexBufferMemory;
+  // This is set first as VK_NULL_HANDLE, since we initially want to destroy
+  // buffer, and VK_NULL_HANDLE is valid for vkDestroyBuffer when buffer in
+  // unitialized
+  VkBuffer vertexBuffer = VK_NULL_HANDLE;
+  VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
 
   VulkanBuffer(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
                VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool);

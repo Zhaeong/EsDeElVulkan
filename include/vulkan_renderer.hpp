@@ -66,6 +66,8 @@ public:
   void cleanupSwapChain();
   void recreateSwapChain();
 
+  void inputVertexBuffer(std::vector<Utils::Vertex> inputVertices);
+
   void drawFrame();
 };
 } // namespace VulkanStuff
