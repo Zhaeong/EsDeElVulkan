@@ -43,6 +43,7 @@ public:
   // Can be inputs from game =============
 
   std::vector<Utils::Vertex> vertices;
+  std::vector<uint16_t> indices;
 
   //=====================================
 
@@ -53,8 +54,9 @@ public:
   void endRenderPass(VkCommandBuffer commandBuffer);
 
   void drawObjects(VkCommandBuffer commandBuffer);
-  void drawFromVertices(VkCommandBuffer commandBuffer,
-                        std::vector<Utils::Vertex> vertices);
+  void drawFromVertices(VkCommandBuffer commandBuffer);
+
+  void drawFromIndices(VkCommandBuffer commandBuffer);
 
   void beginDrawingCommandBuffer(VkCommandBuffer commandBuffer);
 
@@ -66,7 +68,7 @@ public:
   void cleanupSwapChain();
   void recreateSwapChain();
 
-  void inputVertexBuffer(std::vector<Utils::Vertex> inputVertices);
+  void recreateVertexBuffer(std::vector<Utils::Vertex> inputVertices);
 
   void drawFrame();
 };

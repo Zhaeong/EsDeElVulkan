@@ -73,7 +73,7 @@ std::string Game::getEvent() {
             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
-        vulkanRenderer->inputVertexBuffer(vertices);
+        vulkanRenderer->recreateVertexBuffer(vertices);
         break;
       }
       case SDLK_q: {
@@ -85,7 +85,7 @@ std::string Game::getEvent() {
             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
-        vulkanRenderer->inputVertexBuffer(vertices);
+        vulkanRenderer->recreateVertexBuffer(vertices);
         break;
       }
       default:

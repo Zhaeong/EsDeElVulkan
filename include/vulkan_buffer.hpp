@@ -24,6 +24,9 @@ public:
   VkBuffer vertexBuffer = VK_NULL_HANDLE;
   VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
 
+  VkBuffer indexBuffer = VK_NULL_HANDLE;
+  VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
+
   VulkanBuffer(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
                VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool);
   ~VulkanBuffer();
@@ -38,5 +41,6 @@ public:
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
   void createVertexBuffer(std::vector<Utils::Vertex> vertices);
+  void createIndexBuffer(std::vector<uint16_t> indices);
 };
 } // namespace VulkanStuff
