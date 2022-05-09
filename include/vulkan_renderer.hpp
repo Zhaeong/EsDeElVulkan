@@ -11,6 +11,14 @@
 #include <vulkan_buffer.hpp>
 #include <vulkan_syncobject.hpp>
 
+#include <utils.hpp>
+
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <chrono>
+
 namespace VulkanStuff {
 
 class VulkanRenderer {
@@ -58,6 +66,8 @@ public:
 
   void drawFromIndices(VkCommandBuffer commandBuffer);
 
+  void drawFromDescriptors(VkCommandBuffer commandBuffer, int imageIndex);
+
   void beginDrawingCommandBuffer(VkCommandBuffer commandBuffer);
 
   void endDrawingCommandBuffer(VkCommandBuffer commandBuffer,
@@ -69,6 +79,8 @@ public:
   void recreateSwapChain();
 
   void recreateVertexBuffer(std::vector<Utils::Vertex> inputVertices);
+
+  void updateUniformBuffer(uint32_t currentImage);
 
   void drawFrame();
 };

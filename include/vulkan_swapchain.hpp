@@ -19,6 +19,7 @@ public:
   //======================================================
 
   VkSwapchainKHR swapChain;
+  uint32_t imageCount;
   std::vector<VkImage> swapChainImages;
   VkFormat swapChainImageFormat;
   VkExtent2D swapChainExtent;

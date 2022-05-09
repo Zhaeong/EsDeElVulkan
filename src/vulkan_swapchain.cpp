@@ -83,11 +83,13 @@ void VulkanSwapChain::createSwapChain() {
   VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
   // minimum + 1, and don't go over maximum
-  uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+  imageCount = swapChainSupport.capabilities.minImageCount + 1;
   if (swapChainSupport.capabilities.maxImageCount > 0 &&
       imageCount > swapChainSupport.capabilities.maxImageCount) {
     imageCount = swapChainSupport.capabilities.maxImageCount;
   }
+
+  std::cout << "SwapChainImages: " << imageCount << "\n";
 
   VkSwapchainCreateInfoKHR createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -98,8 +100,6 @@ void VulkanSwapChain::createSwapChain() {
   createInfo.imageExtent = extent;
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-  std::cout << "SwapChainImages: " << imageCount << "\n";
 
   Utils::QueueFamilyIndices indices =
       Utils::findQueueFamilies(physicalDevice, surface);

@@ -26,6 +26,11 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
 
   indices = {0, 1, 2, 2, 3, 0};
   vulkanBuffer->createIndexBuffer(indices);
+
+  vulkanBuffer->createUniformBuffers(vulkanSwapChain.imageCount);
+  vulkanBuffer->createDescriptorPool(vulkanSwapChain.imageCount);
+  vulkanBuffer->createDescriptorSets(vulkanSwapChain.imageCount,
+                                     vulkanPipeline.descriptorSetLayout);
 }
 VulkanRenderer::~VulkanRenderer() {
   vkDeviceWaitIdle(vulkanDevice.logicalDevice);
@@ -81,6 +86,26 @@ void VulkanRenderer::drawFromIndices(VkCommandBuffer commandBuffer) {
   vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
   vkCmdBindIndexBuffer(commandBuffer, vulkanBuffer->indexBuffer, 0,
                        VK_INDEX_TYPE_UINT16);
+
+  vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0,
+                   0, 0);
+}
+
+void VulkanRenderer::drawFromDescriptors(VkCommandBuffer commandBuffer,
+                                         int imageIndex) {
+  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    vulkanPipeline.graphicsPipeline);
+
+  VkBuffer vertexBuffers[] = {vulkanBuffer->vertexBuffer};
+  VkDeviceSize offsets[] = {0};
+  vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+  vkCmdBindIndexBuffer(commandBuffer, vulkanBuffer->indexBuffer, 0,
+                       VK_INDEX_TYPE_UINT16);
+
+  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          vulkanPipeline.pipelineLayout, 0, 1,
+                          &vulkanBuffer->descriptorSets[imageIndex], 0,
+                          nullptr);
 
   vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0,
                    0, 0);
@@ -195,6 +220,37 @@ void VulkanRenderer::recreateVertexBuffer(
   vulkanBuffer->createVertexBuffer(inputVertices);
 }
 
+void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
+  static auto startTime = std::chrono::high_resolution_clock::now();
+
+  auto currentTime = std::chrono::high_resolution_clock::now();
+  float time = std::chrono::duration<float, std::chrono::seconds::period>(
+                   currentTime - startTime)
+                   .count();
+
+  Utils::UniformBufferObject ubo{};
+  ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
+                          glm::vec3(0.0f, 0.0f, 1.0f));
+  ubo.view =
+      glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+                  glm::vec3(0.0f, 0.0f, 1.0f));
+
+  ubo.proj = glm::perspective(glm::radians(45.0f),
+                              vulkanSwapChain.swapChainExtent.width /
+                                  (float)vulkanSwapChain.swapChainExtent.height,
+                              0.1f, 10.0f);
+
+  ubo.proj[1][1] *= -1;
+
+  void *data;
+  vkMapMemory(vulkanDevice.logicalDevice,
+              vulkanBuffer->uniformBuffersMemory[currentImage], 0, sizeof(ubo),
+              0, &data);
+  memcpy(data, &ubo, sizeof(ubo));
+  vkUnmapMemory(vulkanDevice.logicalDevice,
+                vulkanBuffer->uniformBuffersMemory[currentImage]);
+}
+
 void VulkanRenderer::drawFrame() {
   // std::cout << "Drawing frame: " << currentFrame << "\n";
   vkWaitForFences(vulkanDevice.logicalDevice, 1,
@@ -212,6 +268,9 @@ void VulkanRenderer::drawFrame() {
   } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
     throw std::runtime_error("failed to acquire swap chain image!");
   }
+
+  updateUniformBuffer(currentImage);
+
   vkResetFences(vulkanDevice.logicalDevice, 1,
                 &vulkanSyncObject->inFlightFences[currentFrame]);
 
@@ -221,7 +280,9 @@ void VulkanRenderer::drawFrame() {
 
   //  drawObjects(vulkanCommand->commandBuffers[currentFrame]);
   // drawFromVertices(vulkanCommand->commandBuffers[currentFrame]);
-  drawFromIndices(vulkanCommand->commandBuffers[currentFrame]);
+  // drawFromIndices(vulkanCommand->commandBuffers[currentFrame]);
+  drawFromDescriptors(vulkanCommand->commandBuffers[currentFrame],
+                      currentImage);
 
   endRenderPass(vulkanCommand->commandBuffers[currentFrame]);
   endDrawingCommandBuffer(

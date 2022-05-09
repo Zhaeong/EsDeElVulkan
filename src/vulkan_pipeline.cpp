@@ -16,6 +16,8 @@ VulkanPipeline::VulkanPipeline(
   // extensibility
   vulkanRenderPass = new VulkanRenderPass(device, swapChainImageFormat);
 
+  createDescriptorSetLayout();
+
   createGraphicsPipeline();
   createFramebuffers();
 }
@@ -29,6 +31,8 @@ VulkanPipeline::~VulkanPipeline() {
   for (auto framebuffer : swapChainFramebuffers) {
     vkDestroyFramebuffer(device, framebuffer, nullptr);
   }
+
+  vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 }
 
 VkShaderModule
@@ -44,6 +48,25 @@ VulkanPipeline::createShaderModule(const std::vector<char> &code) {
     throw std::runtime_error("failed to create shader module!");
   }
   return shaderModule;
+}
+
+void VulkanPipeline::createDescriptorSetLayout() {
+  VkDescriptorSetLayoutBinding uboLayoutBinding{};
+  uboLayoutBinding.binding = 0;
+  uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  uboLayoutBinding.descriptorCount = 1;
+  uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+  VkDescriptorSetLayoutCreateInfo layoutInfo{};
+  layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+  layoutInfo.bindingCount = 1;
+  layoutInfo.pBindings = &uboLayoutBinding;
+
+  if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr,
+                                  &descriptorSetLayout) != VK_SUCCESS) {
+    throw std::runtime_error("failed to create descriptor set layout!");
+  }
 }
 
 void VulkanPipeline::createGraphicsPipeline() {
@@ -141,7 +164,7 @@ void VulkanPipeline::createGraphicsPipeline() {
   rasterizer.lineWidth = 1.0f;
 
   rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-  rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+  rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
   rasterizer.depthBiasEnable = VK_FALSE;
   rasterizer.depthBiasConstantFactor = 0.0f; // Optional
@@ -203,8 +226,12 @@ void VulkanPipeline::createGraphicsPipeline() {
   // Pipeline layout
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.setLayoutCount = 0;            // Optional
-  pipelineLayoutInfo.pSetLayouts = nullptr;         // Optional
+
+  // Descriptor set layouts
+  pipelineLayoutInfo.setLayoutCount = 1;                 // Optional
+  pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout; // Optional
+
+  // Push constants
   pipelineLayoutInfo.pushConstantRangeCount = 0;    // Optional
   pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
