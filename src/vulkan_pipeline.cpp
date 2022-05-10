@@ -158,6 +158,7 @@ void VulkanPipeline::createGraphicsPipeline() {
   rasterizer.depthClampEnable = VK_FALSE;
 
   // Setting this to true disables output to framebuffer
+  // rasterizer.rasterizerDiscardEnable = VK_FALSE;
   rasterizer.rasterizerDiscardEnable = VK_FALSE;
   rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 

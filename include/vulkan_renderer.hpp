@@ -9,6 +9,7 @@
 #include <vulkan_swapchain.hpp>
 
 #include <vulkan_buffer.hpp>
+#include <vulkan_image.hpp>
 #include <vulkan_syncobject.hpp>
 
 #include <utils.hpp>
@@ -47,11 +48,12 @@ public:
   VulkanCommand *vulkanCommand;
   VulkanSyncObject *vulkanSyncObject;
   VulkanBuffer *vulkanBuffer;
+  VulkanImage *vulkanImage;
 
   // Can be inputs from game =============
-
   std::vector<Utils::Vertex> vertices;
   std::vector<uint16_t> indices;
+  float rotation = 0;
 
   //=====================================
 

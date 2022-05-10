@@ -88,6 +88,19 @@ std::string Game::getEvent() {
         vulkanRenderer->recreateVertexBuffer(vertices);
         break;
       }
+
+      case SDLK_w: {
+        eventName = "KEY_W";
+        std::cout << "Event: " << eventName << "\n";
+        vulkanRenderer->rotation += 0.01;
+        break;
+      }
+      case SDLK_s: {
+        eventName = "KEY_S";
+        std::cout << "Event: " << eventName << "\n";
+        vulkanRenderer->rotation -= 0.01;
+        break;
+      }
       default:
         eventName = "KEY_DOWN";
         break;

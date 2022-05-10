@@ -14,6 +14,10 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
       new VulkanBuffer(vulkanDevice.physicalDevice, vulkanDevice.logicalDevice,
                        vulkanDevice.graphicsQueue, vulkanCommand->commandPool);
 
+  vulkanImage =
+      new VulkanImage(vulkanDevice.physicalDevice, vulkanDevice.logicalDevice,
+                      vulkanDevice.graphicsQueue, vulkanCommand->commandPool);
+
   // vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
   //             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
   //             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
@@ -37,6 +41,7 @@ VulkanRenderer::~VulkanRenderer() {
   delete vulkanCommand;
   delete vulkanSyncObject;
   delete vulkanBuffer;
+  delete vulkanImage;
 }
 
 void VulkanRenderer::beginRenderPass(VkCommandBuffer commandBuffer,
@@ -221,15 +226,17 @@ void VulkanRenderer::recreateVertexBuffer(
 }
 
 void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
+  /*
   static auto startTime = std::chrono::high_resolution_clock::now();
 
   auto currentTime = std::chrono::high_resolution_clock::now();
   float time = std::chrono::duration<float, std::chrono::seconds::period>(
                    currentTime - startTime)
                    .count();
+*/
 
   Utils::UniformBufferObject ubo{};
-  ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),
+  ubo.model = glm::rotate(glm::mat4(1.0f), rotation * glm::radians(90.0f),
                           glm::vec3(0.0f, 0.0f, 1.0f));
   ubo.view =
       glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),

@@ -82,4 +82,16 @@ VkCommandBuffer beginSingleTimeCommands(VkDevice device,
 void endSingleTimeCommands(VkDevice device, VkCommandPool commandPool,
                            VkCommandBuffer commandBuffer, VkQueue submitQueue);
 
+// Buffer functions
+uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter,
+                        VkMemoryPropertyFlags properties);
+
+void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device,
+                  VkDeviceSize size, VkBufferUsageFlags usage,
+                  VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                  VkDeviceMemory &bufferMemory);
+
+void copyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue submitQueue,
+                VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
 } // namespace Utils
