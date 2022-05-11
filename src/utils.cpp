@@ -48,25 +48,31 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
   vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
                                            queueFamilies.data());
 
+  bool foundPresentSupport = false;
+
   for (int i = 0; i < queueFamilies.size(); i++) {
     if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
       indices.graphicsFamily = i;
-      std::cout << "Graphics Queue Index: " << i
-                << " Can create queuecount: " << queueFamilies[i].queueCount
-                << "\n";
     }
+
     // Find if the device supports window system and present images to the
     // surface we created
     VkBool32 presentSupport = false;
+
     // To determine whether a queue family of a physical device supports
     // presentation to a given surface
     vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-    if (presentSupport) {
+    if (presentSupport && !foundPresentSupport) {
       indices.presentFamily = i;
-      std::cout << "Present Queue family Index: " << i
-                << " Queuecount: " << queueFamilies[i].queueCount << "\n";
+      foundPresentSupport = true;
     }
+
   }
+
+  std::cout << "graphicsFamily: " << indices.graphicsFamily.value()
+                << " presentFamily: " << indices.presentFamily.value() << "\n";
+
+
   return indices;
 }
 
