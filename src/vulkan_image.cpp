@@ -8,11 +8,17 @@ VulkanImage::VulkanImage(VkPhysicalDevice inputPhysicalDevice,
                          VkDevice inputDevice, VkQueue inputGraphicsQueue,
                          VkCommandPool inputCommandPool)
     : device{inputDevice}, physicalDevice{inputPhysicalDevice},
-      graphicsQueue{inputGraphicsQueue}, commandPool{inputCommandPool} {}
+      graphicsQueue{inputGraphicsQueue}, commandPool{inputCommandPool} {
+  createTextureImage();
+  createTextureImageView();
+  createTextureSampler();
+}
 
 VulkanImage::~VulkanImage() {
   vkDestroyImage(device, textureImage, nullptr);
   vkFreeMemory(device, textureImageMemory, nullptr);
+  vkDestroyImageView(device, textureImageView, nullptr);
+  vkDestroySampler(device, textureSampler, nullptr);
 }
 
 void VulkanImage::createImage(uint32_t width, uint32_t height, VkFormat format,
@@ -22,6 +28,7 @@ void VulkanImage::createImage(uint32_t width, uint32_t height, VkFormat format,
   // Now create the VKImage
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+  imageInfo.flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
   imageInfo.imageType = VK_IMAGE_TYPE_2D;
   imageInfo.extent.width = static_cast<uint32_t>(width);
   imageInfo.extent.height = static_cast<uint32_t>(height);
@@ -165,10 +172,16 @@ void VulkanImage::createTextureImage() {
 
   stbi_image_free(pixels);
 
-  createImage(
-      texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+  // createImage(
+  //     texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+  //     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+  //     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+
+  createImage(texWidth, texHeight, VK_FORMAT_A8B8G8R8_UNORM_PACK32,
+              VK_IMAGE_TILING_OPTIMAL,
+              VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage,
+              textureImageMemory);
 
   transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
                         VK_IMAGE_LAYOUT_UNDEFINED,
@@ -184,6 +197,49 @@ void VulkanImage::createTextureImage() {
 
   vkDestroyBuffer(device, stagingBuffer, nullptr);
   vkFreeMemory(device, stagingBufferMemory, nullptr);
+}
+
+void VulkanImage::createTextureImageView() {
+  textureImageView =
+      Utils::createImageView(device, textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+}
+
+void VulkanImage::createTextureSampler() {
+  VkSamplerCreateInfo samplerInfo{};
+  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  samplerInfo.magFilter = VK_FILTER_LINEAR;
+  samplerInfo.minFilter = VK_FILTER_LINEAR;
+
+  // https://vulkan-tutorial.com/Texture_mapping/Image_view_and_sampler
+  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+  VkPhysicalDeviceProperties properties{};
+  vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+
+  // Can also just disable if feature not supported
+  // samplerInfo.anisotropyEnable = VK_FALSE;
+  // samplerInfo.maxAnisotropy = 1.0f;
+  samplerInfo.anisotropyEnable = VK_TRUE;
+  samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+
+  samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+
+  samplerInfo.unnormalizedCoordinates = VK_FALSE;
+
+  samplerInfo.compareEnable = VK_FALSE;
+  samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+
+  samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+  samplerInfo.mipLodBias = 0.0f;
+  samplerInfo.minLod = 0.0f;
+  samplerInfo.maxLod = 0.0f;
+
+  if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) !=
+      VK_SUCCESS) {
+    throw std::runtime_error("failed to create texture sampler!");
+  }
 }
 
 } // namespace VulkanStuff

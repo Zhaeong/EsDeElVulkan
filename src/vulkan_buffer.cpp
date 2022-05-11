@@ -102,14 +102,24 @@ void VulkanBuffer::createUniformBuffers(int number) {
 }
 
 void VulkanBuffer::createDescriptorPool(int number) {
-  VkDescriptorPoolSize poolSize{};
-  poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  poolSize.descriptorCount = static_cast<uint32_t>(number);
+
+  std::vector<VkDescriptorPoolSize> poolSizes{};
+
+  VkDescriptorPoolSize poolSizeUBO{};
+  poolSizeUBO.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  poolSizeUBO.descriptorCount = static_cast<uint32_t>(number);
+  poolSizes.push_back(poolSizeUBO);
+
+  VkDescriptorPoolSize poolSizeIMGSampler{};
+  poolSizeIMGSampler.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  poolSizeIMGSampler.descriptorCount = static_cast<uint32_t>(number);
+  poolSizes.push_back(poolSizeIMGSampler);
 
   VkDescriptorPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-  poolInfo.poolSizeCount = 1;
-  poolInfo.pPoolSizes = &poolSize;
+  poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+  poolInfo.pPoolSizes = poolSizes.data();
+
   poolInfo.maxSets = static_cast<uint32_t>(number);
   if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) !=
       VK_SUCCESS) {
@@ -117,7 +127,9 @@ void VulkanBuffer::createDescriptorPool(int number) {
   }
 }
 void VulkanBuffer::createDescriptorSets(
-    int number, VkDescriptorSetLayout descriptorSetLayout) {
+    int number, VkDescriptorSetLayout descriptorSetLayout,
+    VkImageView textureImageView, VkSampler textureSampler) {
+
   std::vector<VkDescriptorSetLayout> layouts(number, descriptorSetLayout);
   VkDescriptorSetAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -140,19 +152,43 @@ void VulkanBuffer::createDescriptorSets(
     bufferInfo.offset = 0;
     bufferInfo.range = sizeof(Utils::UniformBufferObject);
 
-    VkWriteDescriptorSet descriptorWrite{};
-    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.dstSet = descriptorSets[i];
-    descriptorWrite.dstBinding = 0;
-    descriptorWrite.dstArrayElement = 0;
+    VkDescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageView = textureImageView;
+    imageInfo.sampler = textureSampler;
 
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrite.descriptorCount = 1;
+    std::vector<VkWriteDescriptorSet> descriptorWrites{};
 
-    descriptorWrite.pBufferInfo = &bufferInfo;
-    descriptorWrite.pImageInfo = nullptr;       // Optional
-    descriptorWrite.pTexelBufferView = nullptr; // Optional
-    vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+    VkWriteDescriptorSet descriptorWriteUBO{};
+    descriptorWriteUBO.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWriteUBO.dstSet = descriptorSets[i];
+    descriptorWriteUBO.dstBinding = 0;
+    descriptorWriteUBO.dstArrayElement = 0;
+
+    descriptorWriteUBO.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWriteUBO.descriptorCount = 1;
+
+    descriptorWriteUBO.pBufferInfo = &bufferInfo;
+    descriptorWriteUBO.pImageInfo = nullptr;       // Optional
+    descriptorWriteUBO.pTexelBufferView = nullptr; // Optional
+    descriptorWrites.push_back(descriptorWriteUBO);
+
+    VkWriteDescriptorSet descriptorWriteImgSampler{};
+    descriptorWriteImgSampler.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWriteImgSampler.dstSet = descriptorSets[i];
+    descriptorWriteImgSampler.dstBinding = 1;
+    descriptorWriteImgSampler.dstArrayElement = 0;
+    descriptorWriteImgSampler.descriptorType =
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorWriteImgSampler.descriptorCount = 1;
+    descriptorWriteImgSampler.pBufferInfo = nullptr;
+    descriptorWriteImgSampler.pImageInfo = &imageInfo;
+    descriptorWriteImgSampler.pTexelBufferView = nullptr; // Optional
+    descriptorWrites.push_back(descriptorWriteImgSampler);
+
+    vkUpdateDescriptorSets(device,
+                           static_cast<uint32_t>(descriptorWrites.size()),
+                           descriptorWrites.data(), 0, nullptr);
   }
 }
 

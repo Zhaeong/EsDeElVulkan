@@ -97,7 +97,11 @@ void VulkanSwapChain::createSwapChain() {
   createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
   createInfo.surface = surface;
   createInfo.minImageCount = imageCount;
+
+  // Image format
   createInfo.imageFormat = surfaceFormat.format;
+  // createInfo.imageFormat = VK_FORMAT_A8B8G8R8_UNORM_PACK32;
+
   createInfo.imageColorSpace = surfaceFormat.colorSpace;
   createInfo.imageExtent = extent;
   createInfo.imageArrayLayers = 1;
@@ -140,15 +144,15 @@ void VulkanSwapChain::createSwapChain() {
 void VulkanSwapChain::createSwapChainImageViews() {
   swapChainImageViews.resize(swapChainImages.size());
 
-  // VkFormat testFormat = VK_FORMAT_B8G8R8A8_UINT;
-  // std::cout << "Image View Format: " << testFormat << "\n";
+  VkFormat testFormat = VK_FORMAT_B8G8R8A8_SRGB;
+  std::cout << "Image View Format: " << testFormat << "\n";
 
   for (size_t i = 0; i < swapChainImages.size(); i++) {
-    swapChainImageViews[i] = Utils::createImageView(device, swapChainImages[i],
-                                                    swapChainImageFormat);
-    // swapChainImageViews[i] =
-    //     Utils::createImageView(device, swapChainImages[i], testFormat);
-    VkImageViewCreateInfo createInfo{};
+    // swapChainImageViews[i] = Utils::createImageView(device,
+    // swapChainImages[i],
+    //                                                 swapChainImageFormat);
+    swapChainImageViews[i] =
+        Utils::createImageView(device, swapChainImages[i], testFormat);
   }
 }
 

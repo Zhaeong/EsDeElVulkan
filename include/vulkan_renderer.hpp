@@ -70,6 +70,8 @@ public:
 
   void drawFromDescriptors(VkCommandBuffer commandBuffer, int imageIndex);
 
+  void clearColorImage();
+
   void beginDrawingCommandBuffer(VkCommandBuffer commandBuffer);
 
   void endDrawingCommandBuffer(VkCommandBuffer commandBuffer,

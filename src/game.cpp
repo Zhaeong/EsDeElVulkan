@@ -101,6 +101,12 @@ std::string Game::getEvent() {
         vulkanRenderer->rotation -= 0.01;
         break;
       }
+      case SDLK_c: {
+        eventName = "KEY_C";
+        std::cout << "Event: " << eventName << "\n";
+        vulkanRenderer->clearColorImage();
+        break;
+      }
       default:
         eventName = "KEY_DOWN";
         break;

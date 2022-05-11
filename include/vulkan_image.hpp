@@ -24,6 +24,10 @@ public:
   VkImage textureImage;
   VkDeviceMemory textureImageMemory;
 
+  VkImageView textureImageView;
+
+  VkSampler textureSampler;
+
   VulkanImage(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
               VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool);
   ~VulkanImage();
@@ -40,5 +44,9 @@ public:
                          uint32_t height);
 
   void createTextureImage();
+
+  void createTextureImageView();
+
+  void createTextureSampler();
 };
 } // namespace VulkanStuff

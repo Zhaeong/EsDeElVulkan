@@ -22,10 +22,11 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
   //             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
   //             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
-  vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-              {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-              {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-              {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
+  vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+              {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+              {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+              {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}};
+
   vulkanBuffer->createVertexBuffer(vertices);
 
   indices = {0, 1, 2, 2, 3, 0};
@@ -33,8 +34,9 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
 
   vulkanBuffer->createUniformBuffers(vulkanSwapChain.imageCount);
   vulkanBuffer->createDescriptorPool(vulkanSwapChain.imageCount);
-  vulkanBuffer->createDescriptorSets(vulkanSwapChain.imageCount,
-                                     vulkanPipeline.descriptorSetLayout);
+  vulkanBuffer->createDescriptorSets(
+      vulkanSwapChain.imageCount, vulkanPipeline.descriptorSetLayout,
+      vulkanImage->textureImageView, vulkanImage->textureSampler);
 }
 VulkanRenderer::~VulkanRenderer() {
   vkDeviceWaitIdle(vulkanDevice.logicalDevice);
@@ -114,6 +116,27 @@ void VulkanRenderer::drawFromDescriptors(VkCommandBuffer commandBuffer,
 
   vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0,
                    0, 0);
+}
+
+void VulkanRenderer::clearColorImage() {
+
+  VkCommandBuffer commandBuffer = Utils::beginSingleTimeCommands(
+      vulkanDevice.logicalDevice, vulkanBuffer->commandPool);
+  VkImageSubresourceRange ImageSubresourceRange;
+  ImageSubresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  ImageSubresourceRange.baseMipLevel = 0;
+  ImageSubresourceRange.levelCount = 1;
+  ImageSubresourceRange.baseArrayLayer = 0;
+  ImageSubresourceRange.layerCount = 1;
+
+  VkClearColorValue ClearColorValue = {0, 0.111111, 0.222222, 0.333333};
+  vkCmdClearColorImage(commandBuffer, vulkanImage->textureImage,
+                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColorValue,
+                       1, &ImageSubresourceRange);
+
+  Utils::endSingleTimeCommands(vulkanDevice.logicalDevice,
+                               vulkanBuffer->commandPool, commandBuffer,
+                               vulkanDevice.graphicsQueue);
 }
 
 void VulkanRenderer::beginDrawingCommandBuffer(VkCommandBuffer commandBuffer) {

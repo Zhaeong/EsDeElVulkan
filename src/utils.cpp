@@ -84,10 +84,10 @@ VkImageView createImageView(VkDevice device, VkImage image, VkFormat format) {
   // allows you to swizzle the color channels around. For example, you can map
   // all of the channels to the red channel for a monochrome texture. You can
   // also map constant values of 0 and 1 to a channel.
-  // viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-  // viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-  // viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-  // viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+  viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 
   // subresourceRange field describes what the image's purpose is and which
   // part of the image should be accessed. Our images will be used as color

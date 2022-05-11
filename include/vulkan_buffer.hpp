@@ -44,6 +44,8 @@ public:
   void createUniformBuffers(int number);
   void createDescriptorPool(int number);
   void createDescriptorSets(int number,
-                            VkDescriptorSetLayout descriptorSetLayout);
+                            VkDescriptorSetLayout descriptorSetLayout,
+                            VkImageView textureImageView,
+                            VkSampler textureSampler);
 };
 } // namespace VulkanStuff
