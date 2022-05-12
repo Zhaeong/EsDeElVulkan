@@ -145,14 +145,13 @@ void VulkanSwapChain::createSwapChainImageViews() {
   swapChainImageViews.resize(swapChainImages.size());
 
   VkFormat testFormat = VK_FORMAT_B8G8R8A8_SRGB;
-  std::cout << "Image View Format: " << testFormat << "\n";
+  std::cout << "swapchain Image View Format: " << swapChainImageFormat << "\n";
 
   for (size_t i = 0; i < swapChainImages.size(); i++) {
-    // swapChainImageViews[i] = Utils::createImageView(device,
-    // swapChainImages[i],
-    //                                                 swapChainImageFormat);
-    swapChainImageViews[i] =
-        Utils::createImageView(device, swapChainImages[i], testFormat);
+    swapChainImageViews[i] = Utils::createImageView(device, swapChainImages[i],
+                                                    swapChainImageFormat);
+    // swapChainImageViews[i] =
+    //     Utils::createImageView(device, swapChainImages[i], testFormat);
   }
 }
 

@@ -120,6 +120,11 @@ void VulkanRenderer::drawFromDescriptors(VkCommandBuffer commandBuffer,
 
 void VulkanRenderer::clearColorImage() {
 
+  vulkanImage->transitionImageLayout(vulkanImage->textureImage,
+                                     VK_FORMAT_R8G8B8A8_SRGB,
+                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
   VkCommandBuffer commandBuffer = Utils::beginSingleTimeCommands(
       vulkanDevice.logicalDevice, vulkanBuffer->commandPool);
   VkImageSubresourceRange ImageSubresourceRange;
@@ -137,6 +142,11 @@ void VulkanRenderer::clearColorImage() {
   Utils::endSingleTimeCommands(vulkanDevice.logicalDevice,
                                vulkanBuffer->commandPool, commandBuffer,
                                vulkanDevice.graphicsQueue);
+
+  vulkanImage->transitionImageLayout(vulkanImage->textureImage,
+                                     VK_FORMAT_R8G8B8A8_SRGB,
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 void VulkanRenderer::beginDrawingCommandBuffer(VkCommandBuffer commandBuffer) {
