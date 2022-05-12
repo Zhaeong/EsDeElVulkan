@@ -45,12 +45,12 @@ void VulkanImage::createImage(uint32_t width, uint32_t height, VkFormat format,
   imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
   imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-  imageInfo.flags = 0; // Optional
 
   VkImageFormatListCreateInfo formatList{};
   formatList.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO;
-  formatList.viewFormatCount = 1;
-  std::vector formats = {VK_FORMAT_R8G8B8A8_SRGB};
+  formatList.viewFormatCount = 2;
+  std::vector formats = {VK_FORMAT_A8B8G8R8_UNORM_PACK32,
+                         VK_FORMAT_R8G8B8A8_SRGB};
   formatList.pViewFormats = formats.data();
 
   imageInfo.pNext = &formatList;

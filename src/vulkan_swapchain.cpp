@@ -97,6 +97,15 @@ void VulkanSwapChain::createSwapChain() {
   createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
   createInfo.surface = surface;
   createInfo.minImageCount = imageCount;
+  createInfo.flags = VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR;
+
+  VkImageFormatListCreateInfo formatList{};
+  formatList.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO;
+  formatList.viewFormatCount = 2;
+  std::vector formats = {VK_FORMAT_R8G8B8A8_SRGB, VK_FORMAT_B8G8R8A8_SRGB};
+  formatList.pViewFormats = formats.data();
+
+  createInfo.pNext = &formatList;
 
   // Image format
   createInfo.imageFormat = surfaceFormat.format;
