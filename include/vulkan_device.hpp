@@ -22,7 +22,7 @@ public:
   const std::vector<const char *> validationLayers = {
       "VK_LAYER_KHRONOS_validation"};
 
-  const bool enableValidationLayers = true;
+  const bool enableValidationLayers = false;
 
   VkDebugUtilsMessengerEXT debugMessenger;
 
