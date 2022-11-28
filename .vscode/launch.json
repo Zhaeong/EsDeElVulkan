@@ -31,7 +31,7 @@
             "name": "DebugLinuxCPP",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/owen/Documents/EsDeElVulkan/bin/vkGame",
+            "program": "/home/mvtest/Desktop/EsDeElVulkan/bin/vkGame",
             "cwd": "${workspaceRoot}"
         },
         {
@@ -40,6 +40,22 @@
             "request": "launch",
             "program": "/home/linux/Documents/EsDeElVulkan/bin/vkGame",
             "cwd": "${workspaceRoot}"
+        },
+        {
+            "name": "DebugLinuxCPPGM",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/mvtest/Desktop/EsDeElVulkan/bin/vkGame",
+            "environment": [{ "name": "VK_ICD_FILENAMES", "value": "/etc/vulkan/icd.d/amd_icd64.json" },
+            { "name": "VK_ICD_FILENAMES", "value": "/etc/vulkan/icd.d/amd_icd64.json" },
+            { "name": "VK_LAYER_PATH", "value": "/usr/share/vulkan/explicit_layer.d:/opt/GMSharing/settings" },
+            { "name": "ENABLE_GMSHARING_LAYER", "value": "1" },
+            { "name": "GM_ANALYSIS_MODE", "value": "2" },
+            { "name": "GM_DISABLE_SHARED", "value": "0" },
+            { "name": "GM_LOGGER_NAME", "value": "/home/mvtest/Desktop/EsDeElVulkan/GM_vkgame.txt" },
+            { "name": "VK_INSTANCE_LAYERS", "value": "VK_LAYER_gmsharing" }],
+            "cwd": "${workspaceRoot}"
         }
+
     ]
 }
