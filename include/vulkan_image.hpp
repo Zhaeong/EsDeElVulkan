@@ -31,6 +31,10 @@ public:
   VkDeviceMemory second_textureImageMemory;
   VkImageView second_textureImageView;
 
+  VkImage third_textureImage;
+  VkDeviceMemory third_textureImageMemory;
+  VkImageView third_textureImageView;
+
   VulkanImage(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
               VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool);
   ~VulkanImage();
@@ -38,7 +42,7 @@ public:
   void createImage(uint32_t width, uint32_t height, VkFormat format,
                    VkImageTiling tiling, VkImageUsageFlags usage,
                    VkMemoryPropertyFlags properties, VkImage &image,
-                   VkDeviceMemory &imageMemory);
+                   VkDeviceMemory &imageMemory, bool isExplicit);
 
   void transitionImageLayout(VkImage image, VkFormat format,
                              VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -47,7 +51,7 @@ public:
                          uint32_t height);
 
   void createTextureImage(const char *texPath, VkImage &image,
-                          VkDeviceMemory &imageMemory);
+                          VkDeviceMemory &imageMemory, bool isExplicit);
 
   void createTextureSampler();
 };

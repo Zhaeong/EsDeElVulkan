@@ -9,15 +9,22 @@ VulkanImage::VulkanImage(VkPhysicalDevice inputPhysicalDevice,
                          VkCommandPool inputCommandPool)
     : device{inputDevice}, physicalDevice{inputPhysicalDevice},
       graphicsQueue{inputGraphicsQueue}, commandPool{inputCommandPool} {
-  createTextureImage("textures/texture.jpg", textureImage, textureImageMemory);
+  createTextureImage("textures/texture.jpg", textureImage, textureImageMemory,
+                     false);
   textureImageView =
       Utils::createImageView(device, textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 
   createTextureImage("textures/amdtexture.jpg", second_textureImage,
-                     second_textureImageMemory);
+                     second_textureImageMemory, false);
 
   second_textureImageView = Utils::createImageView(device, second_textureImage,
                                                    VK_FORMAT_R8G8B8A8_SRGB);
+
+  createTextureImage("textures/amdtexture2.jpg", third_textureImage,
+                     third_textureImageMemory, true);
+
+  third_textureImageView = Utils::createImageView(device, third_textureImage,
+                                                  VK_FORMAT_R8G8B8A8_SRGB);
 
   createTextureSampler();
 }
@@ -31,13 +38,17 @@ VulkanImage::~VulkanImage() {
   vkFreeMemory(device, second_textureImageMemory, nullptr);
   vkDestroyImageView(device, second_textureImageView, nullptr);
 
+  vkDestroyImage(device, third_textureImage, nullptr);
+  vkFreeMemory(device, third_textureImageMemory, nullptr);
+  vkDestroyImageView(device, third_textureImageView, nullptr);
+
   vkDestroySampler(device, textureSampler, nullptr);
 }
 
 void VulkanImage::createImage(uint32_t width, uint32_t height, VkFormat format,
                               VkImageTiling tiling, VkImageUsageFlags usage,
                               VkMemoryPropertyFlags properties, VkImage &image,
-                              VkDeviceMemory &imageMemory) {
+                              VkDeviceMemory &imageMemory, bool isExplicit) {
   // Now create the VKImage
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -69,11 +80,12 @@ void VulkanImage::createImage(uint32_t width, uint32_t height, VkFormat format,
   // imageInfo.pNext = &formatList;
 
   // Enabling this will disable implicit gmsharing for this image
-  //  VkExternalMemoryImageCreateInfo memCreate{};
-  //  memCreate.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO;
-  //  memCreate.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
-
-  // imageInfo.pNext = &memCreate;
+  if (isExplicit) {
+    VkExternalMemoryImageCreateInfo memCreate{};
+    memCreate.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO;
+    memCreate.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+    imageInfo.pNext = &memCreate;
+  }
 
   if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
     throw std::runtime_error("failed to create image!");
@@ -185,7 +197,8 @@ void VulkanImage::copyBufferToImage(VkBuffer buffer, VkImage image,
 }
 
 void VulkanImage::createTextureImage(const char *texPath, VkImage &image,
-                                     VkDeviceMemory &imageMemory) {
+                                     VkDeviceMemory &imageMemory,
+                                     bool isExplicit) {
   int texWidth, texHeight, texChannels;
   stbi_uc *pixels =
       stbi_load(texPath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -219,7 +232,7 @@ void VulkanImage::createTextureImage(const char *texPath, VkImage &image,
   createImage(texWidth, texHeight, VK_FORMAT_A8B8G8R8_UNORM_PACK32,
               VK_IMAGE_TILING_OPTIMAL,
               VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, image, imageMemory);
+              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, image, imageMemory, false);
 
   transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB,
                         VK_IMAGE_LAYOUT_UNDEFINED,
