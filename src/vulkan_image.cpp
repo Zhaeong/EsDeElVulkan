@@ -56,12 +56,12 @@ void VulkanImage::createImage(uint32_t width, uint32_t height, VkFormat format,
   // imageInfo.pNext = &formatList;
 
   
+  //Enabling this will disable implicit gmsharing for this image
+  // VkExternalMemoryImageCreateInfo memCreate{};
+  // memCreate.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO;
+  // memCreate.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
 
-  VkExternalMemoryImageCreateInfo memCreate{};
-  memCreate.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO;
-  memCreate.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
-
-  imageInfo.pNext = &memCreate;
+  // imageInfo.pNext = &memCreate;
 
   if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
     throw std::runtime_error("failed to create image!");
