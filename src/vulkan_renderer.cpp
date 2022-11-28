@@ -25,11 +25,14 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
   vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
               {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
               {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-              {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}};
+              {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+              {{0.2f, 0.2f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+              {{0.9f, -0.9f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+              {{0.9f, 0.9f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
 
   vulkanBuffer->createVertexBuffer(vertices);
 
-  indices = {0, 1, 2, 2, 3, 0};
+  indices = {0, 1, 2, 2, 3, 0, 4, 5, 6};
   vulkanBuffer->createIndexBuffer(indices);
 
   vulkanBuffer->createUniformBuffers(vulkanSwapChain.imageCount);
@@ -109,13 +112,28 @@ void VulkanRenderer::drawFromDescriptors(VkCommandBuffer commandBuffer,
   vkCmdBindIndexBuffer(commandBuffer, vulkanBuffer->indexBuffer, 0,
                        VK_INDEX_TYPE_UINT16);
 
+  // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+  //                         vulkanPipeline.pipelineLayout, 0, 1,
+  //                         &vulkanBuffer->descriptorSets[imageIndex], 0,
+  //                         nullptr);
+
+  // vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1,
+  // 0,
+  //                  0, 0);
+
+  // first object
+  // vkCmdDrawIndexed(commandBuffer, 6, 1, 0, 0, 0);
+
+  // Second object
+  // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+  //                         vulkanPipeline.pipelineLayout, 0, 1,
+  //                         &vulkanBuffer->descriptorSets[0], 0, nullptr);
+
   vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                           vulkanPipeline.pipelineLayout, 0, 1,
-                          &vulkanBuffer->descriptorSets[imageIndex], 0,
-                          nullptr);
+                          &vulkanBuffer->secondDescriptorSet, 0, nullptr);
 
-  vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0,
-                   0, 0);
+  vkCmdDrawIndexed(commandBuffer, 3, 1, 6, 0, 0);
 }
 
 void VulkanRenderer::clearColorImage() {

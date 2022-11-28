@@ -33,6 +33,14 @@ public:
   VkDescriptorPool descriptorPool;
   std::vector<VkDescriptorSet> descriptorSets;
 
+  // Stuff for second texture
+  VkBuffer secondUniformBuffers;
+  VkDeviceMemory secondUniformBuffersMemory;
+  VkDescriptorPool secondDescriptorPool;
+  VkDescriptorSet secondDescriptorSet;
+
+  // End of stuff for second texture
+
   // Functions
 
   VulkanBuffer(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,

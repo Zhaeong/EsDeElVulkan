@@ -52,6 +52,9 @@
         "random": "cpp",
         "compare": "cpp",
         "concepts": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "chrono": "cpp",
+        "ctime": "cpp",
+        "ratio": "cpp"
     }
 }
