@@ -23,10 +23,13 @@ public:
 
   VkImage textureImage;
   VkDeviceMemory textureImageMemory;
-
   VkImageView textureImageView;
-
   VkSampler textureSampler;
+
+  // Second texture
+  VkImage second_textureImage;
+  VkDeviceMemory second_textureImageMemory;
+  VkImageView second_textureImageView;
 
   VulkanImage(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
               VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool);
@@ -43,9 +46,8 @@ public:
   void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
                          uint32_t height);
 
-  void createTextureImage();
-
-  void createTextureImageView();
+  void createTextureImage(const char *texPath, VkImage &image,
+                          VkDeviceMemory &imageMemory);
 
   void createTextureSampler();
 };

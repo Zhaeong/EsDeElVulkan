@@ -39,7 +39,8 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
   vulkanBuffer->createDescriptorPool(vulkanSwapChain.imageCount);
   vulkanBuffer->createDescriptorSets(
       vulkanSwapChain.imageCount, vulkanPipeline.descriptorSetLayout,
-      vulkanImage->textureImageView, vulkanImage->textureSampler);
+      vulkanImage->textureImageView, vulkanImage->textureSampler,
+      vulkanImage->second_textureImageView);
 }
 VulkanRenderer::~VulkanRenderer() {
   vkDeviceWaitIdle(vulkanDevice.logicalDevice);
@@ -112,17 +113,17 @@ void VulkanRenderer::drawFromDescriptors(VkCommandBuffer commandBuffer,
   vkCmdBindIndexBuffer(commandBuffer, vulkanBuffer->indexBuffer, 0,
                        VK_INDEX_TYPE_UINT16);
 
-  // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-  //                         vulkanPipeline.pipelineLayout, 0, 1,
-  //                         &vulkanBuffer->descriptorSets[imageIndex], 0,
-  //                         nullptr);
+  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          vulkanPipeline.pipelineLayout, 0, 1,
+                          &vulkanBuffer->descriptorSets[imageIndex], 0,
+                          nullptr);
 
   // vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1,
   // 0,
   //                  0, 0);
 
   // first object
-  // vkCmdDrawIndexed(commandBuffer, 6, 1, 0, 0, 0);
+  vkCmdDrawIndexed(commandBuffer, 6, 1, 0, 0, 0);
 
   // Second object
   // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,

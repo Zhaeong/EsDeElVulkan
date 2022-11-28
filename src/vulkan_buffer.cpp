@@ -148,7 +148,8 @@ void VulkanBuffer::createDescriptorPool(int number) {
 }
 void VulkanBuffer::createDescriptorSets(
     int number, VkDescriptorSetLayout descriptorSetLayout,
-    VkImageView textureImageView, VkSampler textureSampler) {
+    VkImageView textureImageView, VkSampler textureSampler,
+    VkImageView secondTextureImageView) {
 
   std::vector<VkDescriptorSetLayout> layouts(number, descriptorSetLayout);
   VkDescriptorSetAllocateInfo allocInfo{};
@@ -232,7 +233,7 @@ void VulkanBuffer::createDescriptorSets(
 
   VkDescriptorImageInfo imageInfo{};
   imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-  imageInfo.imageView = textureImageView;
+  imageInfo.imageView = secondTextureImageView;
   imageInfo.sampler = textureSampler;
 
   std::vector<VkWriteDescriptorSet> descriptorWrites{};

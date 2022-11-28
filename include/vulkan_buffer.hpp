@@ -54,6 +54,7 @@ public:
   void createDescriptorSets(int number,
                             VkDescriptorSetLayout descriptorSetLayout,
                             VkImageView textureImageView,
-                            VkSampler textureSampler);
+                            VkSampler textureSampler,
+                            VkImageView secondTextureImageView);
 };
 } // namespace VulkanStuff
