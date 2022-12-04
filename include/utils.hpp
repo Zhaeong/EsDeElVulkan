@@ -21,7 +21,6 @@ struct SwapChainSupportDetails {
 struct QueueFamilyIndices {
   std::optional<uint32_t> graphicsFamily;
   std::optional<uint32_t> presentFamily;
-
 };
 
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
@@ -41,7 +40,7 @@ void showWindowFlags(int flags);
 // Input Structs
 
 struct Vertex {
-  glm::vec2 pos;
+  glm::vec3 pos;
   glm::vec3 color;
   glm::vec2 texCoord;
 
