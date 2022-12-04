@@ -51,6 +51,17 @@ public:
   void createIndexBuffer(std::vector<uint16_t> indices);
   void createUniformBuffers(int number);
   void createDescriptorPool(int number);
+
+  // Static since generic and can be called regardless
+  static VkDescriptorSet
+  createDescriptorSet(VkDevice device,
+                      VkDescriptorSetLayout descriptorSetLayout,
+                      VkDescriptorPool pool);
+
+  static void writeDescritorSets(VkDevice device, VkDescriptorSet descritorSet,
+                                 VkBuffer uniformBuffer, VkImageView imageView,
+                                 VkSampler sampler);
+
   void createDescriptorSets(int number,
                             VkDescriptorSetLayout descriptorSetLayout,
                             VkImageView textureImageView,

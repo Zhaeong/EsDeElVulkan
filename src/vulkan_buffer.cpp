@@ -146,101 +146,48 @@ void VulkanBuffer::createDescriptorPool(int number) {
     throw std::runtime_error("failed to create descriptor pool!");
   }
 }
-void VulkanBuffer::createDescriptorSets(
-    int number, VkDescriptorSetLayout descriptorSetLayout,
-    VkImageView textureImageView, VkSampler textureSampler,
-    VkImageView secondTextureImageView) {
 
-  std::vector<VkDescriptorSetLayout> layouts(number, descriptorSetLayout);
-  VkDescriptorSetAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  allocInfo.descriptorPool = descriptorPool;
-  allocInfo.descriptorSetCount = static_cast<uint32_t>(number);
-  allocInfo.pSetLayouts = layouts.data();
+VkDescriptorSet
+VulkanBuffer::createDescriptorSet(VkDevice device,
+                                  VkDescriptorSetLayout descriptorSetLayout,
+                                  VkDescriptorPool pool) {
 
-  descriptorSets.resize(number);
-  if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) !=
+  VkDescriptorSet descriptorSet;
+  std::vector<VkDescriptorSetLayout> layouts(1, descriptorSetLayout);
+  VkDescriptorSetAllocateInfo secondAllocInfo{};
+  secondAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  secondAllocInfo.descriptorPool = pool;
+  secondAllocInfo.descriptorSetCount = static_cast<uint32_t>(1);
+  secondAllocInfo.pSetLayouts = layouts.data();
+
+  if (vkAllocateDescriptorSets(device, &secondAllocInfo, &descriptorSet) !=
       VK_SUCCESS) {
     throw std::runtime_error("failed to allocate descriptor sets!");
   }
+  return descriptorSet;
+}
 
-  // Theyve been allocated, now they need to be configured
-  // Bind uniform buffers to descriptorsi
-
-  for (size_t i = 0; i < number; i++) {
-    VkDescriptorBufferInfo bufferInfo{};
-    bufferInfo.buffer = uniformBuffers[i];
-    bufferInfo.offset = 0;
-    bufferInfo.range = sizeof(Utils::UniformBufferObject);
-
-    VkDescriptorImageInfo imageInfo{};
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = textureImageView;
-    imageInfo.sampler = textureSampler;
-
-    std::vector<VkWriteDescriptorSet> descriptorWrites{};
-
-    VkWriteDescriptorSet descriptorWriteUBO{};
-    descriptorWriteUBO.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWriteUBO.dstSet = descriptorSets[i];
-    descriptorWriteUBO.dstBinding = 0;
-    descriptorWriteUBO.dstArrayElement = 0;
-
-    descriptorWriteUBO.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWriteUBO.descriptorCount = 1;
-
-    descriptorWriteUBO.pBufferInfo = &bufferInfo;
-    descriptorWriteUBO.pImageInfo = nullptr;       // Optional
-    descriptorWriteUBO.pTexelBufferView = nullptr; // Optional
-    descriptorWrites.push_back(descriptorWriteUBO);
-
-    VkWriteDescriptorSet descriptorWriteImgSampler{};
-    descriptorWriteImgSampler.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWriteImgSampler.dstSet = descriptorSets[i];
-    descriptorWriteImgSampler.dstBinding = 1;
-    descriptorWriteImgSampler.dstArrayElement = 0;
-    descriptorWriteImgSampler.descriptorType =
-        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptorWriteImgSampler.descriptorCount = 1;
-    descriptorWriteImgSampler.pBufferInfo = nullptr;
-    descriptorWriteImgSampler.pImageInfo = &imageInfo;
-    descriptorWriteImgSampler.pTexelBufferView = nullptr; // Optional
-    descriptorWrites.push_back(descriptorWriteImgSampler);
-
-    vkUpdateDescriptorSets(device,
-                           static_cast<uint32_t>(descriptorWrites.size()),
-                           descriptorWrites.data(), 0, nullptr);
-  }
-
-  // Create second descriptor set
-
-  std::vector<VkDescriptorSetLayout> secondLayouts(1, descriptorSetLayout);
-  VkDescriptorSetAllocateInfo secondAllocInfo{};
-  secondAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  secondAllocInfo.descriptorPool = secondDescriptorPool;
-  secondAllocInfo.descriptorSetCount = static_cast<uint32_t>(1);
-  secondAllocInfo.pSetLayouts = secondLayouts.data();
-
-  if (vkAllocateDescriptorSets(device, &secondAllocInfo,
-                               &secondDescriptorSet) != VK_SUCCESS) {
-    throw std::runtime_error("failed to allocate descriptor sets!");
-  }
+void VulkanBuffer::writeDescritorSets(VkDevice device,
+                                      VkDescriptorSet descritorSet,
+                                      VkBuffer uniformBuffer,
+                                      VkImageView imageView,
+                                      VkSampler sampler) {
 
   VkDescriptorBufferInfo bufferInfo{};
-  bufferInfo.buffer = uniformBuffers[0];
+  bufferInfo.buffer = uniformBuffer;
   bufferInfo.offset = 0;
   bufferInfo.range = sizeof(Utils::UniformBufferObject);
 
   VkDescriptorImageInfo imageInfo{};
   imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-  imageInfo.imageView = secondTextureImageView;
-  imageInfo.sampler = textureSampler;
+  imageInfo.imageView = imageView;
+  imageInfo.sampler = sampler;
 
   std::vector<VkWriteDescriptorSet> descriptorWrites{};
 
   VkWriteDescriptorSet descriptorWriteUBO{};
   descriptorWriteUBO.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  descriptorWriteUBO.dstSet = secondDescriptorSet;
+  descriptorWriteUBO.dstSet = descritorSet;
   descriptorWriteUBO.dstBinding = 0;
   descriptorWriteUBO.dstArrayElement = 0;
 
@@ -254,7 +201,7 @@ void VulkanBuffer::createDescriptorSets(
 
   VkWriteDescriptorSet descriptorWriteImgSampler{};
   descriptorWriteImgSampler.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  descriptorWriteImgSampler.dstSet = secondDescriptorSet;
+  descriptorWriteImgSampler.dstSet = descritorSet;
   descriptorWriteImgSampler.dstBinding = 1;
   descriptorWriteImgSampler.dstArrayElement = 0;
   descriptorWriteImgSampler.descriptorType =
@@ -267,6 +214,32 @@ void VulkanBuffer::createDescriptorSets(
 
   vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()),
                          descriptorWrites.data(), 0, nullptr);
+}
+
+void VulkanBuffer::createDescriptorSets(
+    int number, VkDescriptorSetLayout descriptorSetLayout,
+    VkImageView textureImageView, VkSampler textureSampler,
+    VkImageView secondTextureImageView) {
+
+  // Theyve been allocated, now they need to be configured
+  // Bind uniform buffers to descriptorsi
+
+  descriptorSets.resize(number);
+  for (size_t i = 0; i < number; i++) {
+
+    descriptorSets[i] =
+        createDescriptorSet(device, descriptorSetLayout, descriptorPool);
+
+    writeDescritorSets(device, descriptorSets[i], uniformBuffers[i],
+                       textureImageView, textureSampler);
+  }
+
+  // Create second descriptor set
+  secondDescriptorSet =
+      createDescriptorSet(device, descriptorSetLayout, secondDescriptorPool);
+
+  writeDescritorSets(device, secondDescriptorSet, uniformBuffers[0],
+                     secondTextureImageView, textureSampler);
 }
 
 } // namespace VulkanStuff
