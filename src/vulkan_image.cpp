@@ -20,12 +20,6 @@ VulkanImage::VulkanImage(VkPhysicalDevice inputPhysicalDevice,
   second_textureImageView = Utils::createImageView(device, second_textureImage,
                                                    VK_FORMAT_R8G8B8A8_SRGB);
 
-  createTextureImage("textures/amdtexture2.jpg", third_textureImage,
-                     third_textureImageMemory, true);
-
-  third_textureImageView = Utils::createImageView(device, third_textureImage,
-                                                  VK_FORMAT_R8G8B8A8_SRGB);
-
   createTextureSampler();
 }
 
@@ -37,10 +31,6 @@ VulkanImage::~VulkanImage() {
   vkDestroyImage(device, second_textureImage, nullptr);
   vkFreeMemory(device, second_textureImageMemory, nullptr);
   vkDestroyImageView(device, second_textureImageView, nullptr);
-
-  vkDestroyImage(device, third_textureImage, nullptr);
-  vkFreeMemory(device, third_textureImageMemory, nullptr);
-  vkDestroyImageView(device, third_textureImageView, nullptr);
 
   vkDestroySampler(device, textureSampler, nullptr);
 }
@@ -286,5 +276,12 @@ void VulkanImage::createTextureSampler() {
     throw std::runtime_error("failed to create texture sampler!");
   }
 }
+
+void VulkanImage::createDepthResources() {}
+
+VkFormat
+VulkanImage::findSupportedFormat(const std::vector<VkFormat> &candidates,
+                                 VkImageTiling tiling,
+                                 VkFormatFeatureFlags features) {}
 
 } // namespace VulkanStuff

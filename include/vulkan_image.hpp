@@ -31,9 +31,10 @@ public:
   VkDeviceMemory second_textureImageMemory;
   VkImageView second_textureImageView;
 
-  VkImage third_textureImage;
-  VkDeviceMemory third_textureImageMemory;
-  VkImageView third_textureImageView;
+  // Depth image
+  VkImage depthImage;
+  VkDeviceMemory depthImageMemory;
+  VkImageView depthImageView;
 
   VulkanImage(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
               VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool);
@@ -54,5 +55,13 @@ public:
                           VkDeviceMemory &imageMemory, bool isExplicit);
 
   void createTextureSampler();
+
+  void createDepthResources();
+
+  // utils functions
+
+  VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates,
+                               VkImageTiling tiling,
+                               VkFormatFeatureFlags features);
 };
 } // namespace VulkanStuff
