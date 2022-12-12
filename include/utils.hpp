@@ -11,7 +11,8 @@
 #include <vulkan/vulkan.h>
 
 namespace Utils {
-
+static const int WIDTH = 800;
+static const int HEIGHT = 600;
 struct SwapChainSupportDetails {
   VkSurfaceCapabilitiesKHR capabilities;
   std::vector<VkSurfaceFormatKHR> formats;
@@ -30,7 +31,8 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
                                      VkSurfaceKHR surface);
 
 // Image functions
-VkImageView createImageView(VkDevice device, VkImage image, VkFormat format);
+VkImageView createImageView(VkDevice device, VkImage image, VkFormat format,
+                            VkImageAspectFlags aspectFlags);
 
 std::vector<char> readFile(std::string filePath);
 
@@ -102,4 +104,15 @@ void createBuffer(VkPhysicalDevice physicalDevice, VkDevice device,
 void copyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue submitQueue,
                 VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
+std::vector<VkFramebuffer>
+createFramebuffers(VkDevice device,
+                   std::vector<VkImageView> swapChainImageViews,
+                   VkImageView depthImageView, VkRenderPass renderPass,
+                   VkExtent2D swapChainExtent);
+bool hasStencilComponent(VkFormat format);
+
+VkFormat findSupportedFormat(VkPhysicalDevice physicalDevice,
+                             const std::vector<VkFormat> &candidates,
+                             VkImageTiling tiling,
+                             VkFormatFeatureFlags features);
 } // namespace Utils

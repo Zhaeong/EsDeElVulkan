@@ -157,8 +157,9 @@ void VulkanSwapChain::createSwapChainImageViews() {
   std::cout << "swapchain Image View Format: " << swapChainImageFormat << "\n";
 
   for (size_t i = 0; i < swapChainImages.size(); i++) {
-    swapChainImageViews[i] = Utils::createImageView(device, swapChainImages[i],
-                                                    swapChainImageFormat);
+    swapChainImageViews[i] =
+        Utils::createImageView(device, swapChainImages[i], swapChainImageFormat,
+                               VK_IMAGE_ASPECT_COLOR_BIT);
     // swapChainImageViews[i] =
     //     Utils::createImageView(device, swapChainImages[i], testFormat);
   }

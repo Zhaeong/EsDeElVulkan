@@ -8,7 +8,7 @@ Game::Game() {
   }
 
   window = SDL_CreateWindow("SDL Vulkan Sample", SDL_WINDOWPOS_CENTERED,
-                            SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT,
+                            SDL_WINDOWPOS_CENTERED, Utils::WIDTH, Utils::HEIGHT,
                             SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
   vulkanRenderer = new VulkanStuff::VulkanRenderer(window);

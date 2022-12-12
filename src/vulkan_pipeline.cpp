@@ -14,12 +14,12 @@ VulkanPipeline::VulkanPipeline(
 
   // Ive seperate renderpass into its own obj, hopefully for easier future
   // extensibility
-  vulkanRenderPass = new VulkanRenderPass(device, swapChainImageFormat);
+  vulkanRenderPass =
+      new VulkanRenderPass(physicalDevice, device, swapChainImageFormat);
 
   createDescriptorSetLayout();
 
   createGraphicsPipeline();
-  createFramebuffers();
 }
 VulkanPipeline::~VulkanPipeline() {
   // Make sure to clean up pointer objects
@@ -27,10 +27,6 @@ VulkanPipeline::~VulkanPipeline() {
 
   vkDestroyPipeline(device, graphicsPipeline, nullptr);
   vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-
-  for (auto framebuffer : swapChainFramebuffers) {
-    vkDestroyFramebuffer(device, framebuffer, nullptr);
-  }
 
   vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 }
@@ -253,6 +249,22 @@ void VulkanPipeline::createGraphicsPipeline() {
     throw std::runtime_error("failed to create pipeline layout!");
   }
 
+  // Create depth stencil state
+  VkPipelineDepthStencilStateCreateInfo depthStencil{};
+  depthStencil.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+  depthStencil.depthTestEnable = VK_TRUE;
+  depthStencil.depthWriteEnable = VK_TRUE;
+  depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+
+  depthStencil.depthBoundsTestEnable = VK_FALSE;
+  depthStencil.minDepthBounds = 0.0f; // Optional
+  depthStencil.maxDepthBounds = 1.0f; // Optional
+
+  depthStencil.stencilTestEnable = VK_FALSE;
+  depthStencil.front = {}; // Optional
+  depthStencil.back = {};  // Optional
+
   // Able to put it all together to create pipeline
   VkGraphicsPipelineCreateInfo pipelineInfo{};
   pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -264,7 +276,7 @@ void VulkanPipeline::createGraphicsPipeline() {
   pipelineInfo.pViewportState = &viewportState;
   pipelineInfo.pRasterizationState = &rasterizer;
   pipelineInfo.pMultisampleState = &multisampling;
-  pipelineInfo.pDepthStencilState = nullptr; // Optional
+  pipelineInfo.pDepthStencilState = &depthStencil; // Optional
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = nullptr; // Optional
 
@@ -284,29 +296,6 @@ void VulkanPipeline::createGraphicsPipeline() {
   // Cleanup===========
   vkDestroyShaderModule(device, fragShaderModule, nullptr);
   vkDestroyShaderModule(device, vertShaderModule, nullptr);
-}
-
-void VulkanPipeline::createFramebuffers() {
-
-  swapChainFramebuffers.resize(swapChainImageViews.size());
-  for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-    VkImageView attachments[] = {swapChainImageViews[i]};
-
-    VkFramebufferCreateInfo framebufferInfo{};
-    // framebufferInfo.flags = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT;
-    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.renderPass = vulkanRenderPass->renderPass;
-    framebufferInfo.attachmentCount = 1;
-    framebufferInfo.pAttachments = attachments;
-    framebufferInfo.width = swapChainExtent.width;
-    framebufferInfo.height = swapChainExtent.height;
-    framebufferInfo.layers = 1;
-
-    if (vkCreateFramebuffer(device, &framebufferInfo, nullptr,
-                            &swapChainFramebuffers[i]) != VK_SUCCESS) {
-      throw std::runtime_error("failed to create framebuffer!");
-    }
-  }
 }
 
 } // namespace VulkanStuff

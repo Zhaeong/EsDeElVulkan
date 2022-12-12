@@ -21,6 +21,9 @@ public:
   VkCommandPool commandPool;
   //============================
 
+  // From creation window
+  VkExtent2D swapChainExtent;
+
   VkImage textureImage;
   VkDeviceMemory textureImageMemory;
   VkImageView textureImageView;
@@ -37,7 +40,8 @@ public:
   VkImageView depthImageView;
 
   VulkanImage(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
-              VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool);
+              VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool,
+              VkExtent2D inputExtent);
   ~VulkanImage();
 
   void createImage(uint32_t width, uint32_t height, VkFormat format,
@@ -57,11 +61,5 @@ public:
   void createTextureSampler();
 
   void createDepthResources();
-
-  // utils functions
-
-  VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates,
-                               VkImageTiling tiling,
-                               VkFormatFeatureFlags features);
 };
 } // namespace VulkanStuff

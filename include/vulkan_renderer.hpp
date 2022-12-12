@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-//#include <string>
+// #include <string>
 #include <vulkan/vulkan.h>
 #include <vulkan_command.hpp>
 #include <vulkan_device.hpp>
@@ -49,6 +49,8 @@ public:
   VulkanSyncObject *vulkanSyncObject;
   VulkanBuffer *vulkanBuffer;
   VulkanImage *vulkanImage;
+
+  std::vector<VkFramebuffer> swapChainFramebuffers;
 
   // Can be inputs from game =============
   std::vector<Utils::Vertex> vertices;

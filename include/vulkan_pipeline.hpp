@@ -24,7 +24,6 @@ public:
   VulkanRenderPass *vulkanRenderPass;
 
   VkPipeline graphicsPipeline;
-  std::vector<VkFramebuffer> swapChainFramebuffers;
 
   // Functions ============================
 
