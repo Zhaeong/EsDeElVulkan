@@ -42,8 +42,8 @@ OBJDIR = obj
 BINDIR = bin
 HDRDIR = include
 
-STB_INCLUDE_PATH =  /home/mvtest/Desktop/EsDeElVulkan/external
-SDK_PATH = /home/mvtest/Documents/1.3.231.2/x86_64
+STB_INCLUDE_PATH =  /home/mvtest/Documents/EsDeElVulkan/external
+SDK_PATH = /home/mvtest/Desktop/1.3.236.0/x86_64
 
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 

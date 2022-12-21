@@ -22,7 +22,8 @@ public:
   const std::vector<const char *> validationLayers = {
       "VK_LAYER_KHRONOS_validation"};
 
-  const bool enableValidationLayers = true;
+  //This needs to be false else other layers don't work
+  const bool enableValidationLayers = false;
 
   VkDebugUtilsMessengerEXT debugMessenger;
 
