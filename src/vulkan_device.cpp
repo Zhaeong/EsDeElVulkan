@@ -7,6 +7,53 @@ VulkanDevice::VulkanDevice(SDL_Window *sdlWindow) : window{sdlWindow} {
   createSurface();
   pickPhysicalDevice();
   createLogicalDevice();
+
+  m_vkLoader = dlopen("/home/mvtest/Documents/Vulkan-Loader/builddbg/loader/libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+
+  //pfn_vkQuerySharedPoolProperties = (PFN_vkQuerySharedPoolProperties)dlsym(m_vkLoader, "vkQuerySharedPoolProperties");
+  
+  //pfn_vkCreateInstance = (PFN_vkCreateInstance)dlsym(m_vkLoader, "vkCreateInstance");
+
+  //pfn_vkGetDeviceProcAddr = (PFN_vkGetDeviceProcAddr)dlsym(m_vkLoader, "vkGetDeviceProcAddr");
+
+  //vkGet
+  //pfn_vkQuerySharedPoolProperties = (PFN_vkQuerySharedPoolProperties)vkGetInstanceProcAddr(instance, "vkQuerySharedPoolProperties");
+
+  //pfn_vkQuerySharedPoolPropertiesAMD = (pfn_vkQuerySharedPoolPropertiesAMD)vkGetDeviceProcAddr(logicalDevice, "pfn_vkQuerySharedPoolPropertiesAMD");
+
+  pfn_vkQuerySharedPoolPropertiesAMD = reinterpret_cast<PFN_vkQuerySharedPoolPropertiesAMD>(vkGetDeviceProcAddr(logicalDevice, "vkQuerySharedPoolPropertiesAMD"));
+
+    if (pfn_vkQuerySharedPoolPropertiesAMD != nullptr)
+    {
+        VkSharedPoolInfoAMD poolInfo = {};
+        uint64_t* pNumOfAllocations = new uint64_t(0);
+
+        pfn_vkQuerySharedPoolPropertiesAMD(logicalDevice, &poolInfo, pNumOfAllocations, nullptr);
+
+        printf("pool size:%lu, pool usage: %lu, sub allocation count:%lu",
+            poolInfo.poolSize, poolInfo.poolUsage, *pNumOfAllocations);
+
+        uint64_t originalNumOfAllocations = *pNumOfAllocations;
+
+        VkSharedPoolAllocationInfoAMD *pSubAllocationInfo = new VkSharedPoolAllocationInfoAMD[*pNumOfAllocations];
+
+        pfn_vkQuerySharedPoolPropertiesAMD(logicalDevice, &poolInfo, pNumOfAllocations, pSubAllocationInfo);
+
+        for (uint32_t idx = 0; idx < originalNumOfAllocations; idx++)
+        {
+            printf("hashcode:%lu, size:%lu",
+            pSubAllocationInfo[idx].hashcode,
+            pSubAllocationInfo[idx].size);
+        }
+        delete[] pSubAllocationInfo;
+        delete pNumOfAllocations;
+    }
+
+
+
+  // int i = 30;
+
+  pfn_vkCreateInstance = (PFN_vkCreateInstance)dlsym(m_vkLoader, "vkCreateInstance");
 }
 
 VulkanDevice::~VulkanDevice() {
@@ -214,7 +261,7 @@ void VulkanDevice::pickPhysicalDevice() {
   std::vector<VkPhysicalDevice> vPhysicalDevices(deviceCount);
   vkEnumeratePhysicalDevices(instance, &deviceCount, vPhysicalDevices.data());
 
-  for (int i = 0; i < vPhysicalDevices.size(); i++) {
+  for (int i = 1; i < vPhysicalDevices.size(); i++) {
     if (isDeviceSuitable(vPhysicalDevices[i])) {
       physicalDevice = vPhysicalDevices[i];
       break;

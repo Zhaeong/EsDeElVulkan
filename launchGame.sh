@@ -14,6 +14,8 @@ export GM_LOGGER_NAME=/home/mvtest/Documents/GMUser.txt
 export VK_INSTANCE_LAYERS="VK_LAYER_cloud_service"
 export GM_SUPPORT_ALL_PLATFORMS=1
 
+
+
 exec ./bin/vkGame 2>&1
 #exec vkcube 2>&1
 #/home/mvtest/Desktop/aco_reqs/oxenfreebins/OXENFREE/1011build

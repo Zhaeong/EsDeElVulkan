@@ -25,12 +25,12 @@
 #  Finds whitespace-separated words in text that match pattern and replaces them with replacement
 #####END REFERENCE#####
 
-CC = g++
+CC = clang++
 
 #-ggdb compiles with debug symbols
 #-mwindows compiles without terminal
 #CFLAGS = -Wall -Wextra -Wshadow -ggdb -O0 -g
-CFLAGS = -O3 -std=c++17 -fno-common -g
+CFLAGS = -O3 -std=c++17 -fno-common -g -ggdb
 #LINKERS = -lmingw32 -lglfw3 -lgdi32 -lvulkan-1
 #-ldl -lpthread -lX11 -lXrandr
 

@@ -10,7 +10,30 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+struct VkSharedPoolInfoAMD
+{
+    VkStructureType             sType;
+    const void*                 pNext;
+    uint64_t                    poolSize;
+    uint64_t                    poolUsage;
+    uint32_t                    poolIndex;
+};
+
+struct VkSharedPoolAllocationInfoAMD
+{
+    VkStructureType             sType;
+    const void*                 pNext;
+    uint64_t                    hashcode;
+    uint64_t                    offset;
+    uint64_t                    size;
+    uint64_t                    alignment;
+    VkFormat                    vkFormat;
+};
+
 namespace Utils {
+
+
+
 static const int WIDTH = 800;
 static const int HEIGHT = 600;
 struct SwapChainSupportDetails {
