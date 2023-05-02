@@ -258,7 +258,7 @@ void VulkanRenderer::endDrawingCommandBuffer(
     throw std::runtime_error("failed to submit draw command buffer!");
   }
 
-  // vkQueueWaitIdle(vulkanDevice.graphicsQueue);
+  vkQueueWaitIdle(vulkanDevice.graphicsQueue);
   getQueryPoolTimes();
   /*
   vkQueueWaitIdle(vulkanDevice.graphicsQueue);
@@ -410,7 +410,7 @@ void VulkanRenderer::drawFrame(uint32_t queryIndex) {
   drawFromDescriptors(vulkanCommand->commandBuffers[currentFrame],
                       currentImage);
 
-  for (int i = 0; i < 100000; i++) {
+  for (int i = 0; i < 1000000; i++) {
     drawFromDescriptors(vulkanCommand->commandBuffers[currentFrame],
                         currentImage);
   }
@@ -484,6 +484,9 @@ void VulkanRenderer::getQueryPoolTimes() {
 
     std::cout << "diff : " << diff << "\n";
     std::cout << "diff in nanos: " << diffNano << "\n";
+
+    float diffSeconds =  diffNano/1000000000.0;
+    std::cout << "diff in s: " << diffSeconds << "\n";
   }
 
   std::cout << "=======================================\n";
