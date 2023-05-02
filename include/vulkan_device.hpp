@@ -10,18 +10,17 @@
 #include <string>
 #include <utils.hpp>
 #include <vector>
-#include <dlfcn.h>
+// For loading function pointers on lnx
+// #include <dlfcn.h>
 
-typedef void (VKAPI_PTR *PFN_vkQuerySharedPoolPropertiesAMD)(
-        VkDevice                                    device,
-        VkSharedPoolInfoAMD*                        pInfo,
-        uint64_t*                                   pNumOfAllocations,
-        VkSharedPoolAllocationInfoAMD*              pAllocations);
-typedef VkResult (VKAPI_PTR *PFN_vkCreateInstance)(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance);
-
+typedef void(VKAPI_PTR *PFN_vkQuerySharedPoolPropertiesAMD)(
+    VkDevice device, VkSharedPoolInfoAMD *pInfo, uint64_t *pNumOfAllocations,
+    VkSharedPoolAllocationInfoAMD *pAllocations);
+typedef VkResult(VKAPI_PTR *PFN_vkCreateInstance)(
+    const VkInstanceCreateInfo *pCreateInfo,
+    const VkAllocationCallbacks *pAllocator, VkInstance *pInstance);
 
 namespace VulkanStuff {
-
 
 class VulkanDevice {
 
@@ -32,7 +31,7 @@ public:
   const std::vector<const char *> validationLayers = {
       "VK_LAYER_KHRONOS_validation"};
 
-  //This needs to be false else other layers don't work
+  // This needs to be false else other layers don't work
   const bool enableValidationLayers = false;
 
   VkDebugUtilsMessengerEXT debugMessenger;
@@ -55,13 +54,15 @@ public:
   VkQueue graphicsQueue;
   VkQueue presentQueue;
 
-  void* m_vkLoader { nullptr };
+  void *m_vkLoader{nullptr};
 
-  PFN_vkCreateInstance pfn_vkCreateInstance { nullptr };
-  PFN_vkQuerySharedPoolPropertiesAMD pfn_vkQuerySharedPoolPropertiesAMD { nullptr };
-  //PFN_vkQuerySharedPoolProperties pfn_vkQuerySharedPoolProperties { nullptr };
+  PFN_vkCreateInstance pfn_vkCreateInstance{nullptr};
+  PFN_vkQuerySharedPoolPropertiesAMD pfn_vkQuerySharedPoolPropertiesAMD{
+      nullptr};
+  // PFN_vkQuerySharedPoolProperties pfn_vkQuerySharedPoolProperties { nullptr
+  // };
   //=========
-  // Functions
+  //  Functions
   //=========
 
   VulkanDevice(SDL_Window *sdlWindow);
