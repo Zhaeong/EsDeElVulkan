@@ -10,29 +10,25 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-struct VkSharedPoolInfoAMD
-{
-    VkStructureType             sType;
-    const void*                 pNext;
-    uint64_t                    poolSize;
-    uint64_t                    poolUsage;
-    uint32_t                    poolIndex;
+struct VkSharedPoolInfoAMD {
+  VkStructureType sType;
+  const void *pNext;
+  uint64_t poolSize;
+  uint64_t poolUsage;
+  uint32_t poolIndex;
 };
 
-struct VkSharedPoolAllocationInfoAMD
-{
-    VkStructureType             sType;
-    const void*                 pNext;
-    uint64_t                    hashcode;
-    uint64_t                    offset;
-    uint64_t                    size;
-    uint64_t                    alignment;
-    VkFormat                    vkFormat;
+struct VkSharedPoolAllocationInfoAMD {
+  VkStructureType sType;
+  const void *pNext;
+  uint64_t hashcode;
+  uint64_t offset;
+  uint64_t size;
+  uint64_t alignment;
+  VkFormat vkFormat;
 };
 
 namespace Utils {
-
-
 
 static const int WIDTH = 800;
 static const int HEIGHT = 600;
@@ -106,6 +102,11 @@ struct UniformBufferObject {
   glm::mat4 model;
   glm::mat4 view;
   glm::mat4 proj;
+};
+
+struct Query {
+  uint64_t value{};
+  uint64_t availability{};
 };
 //===========================
 

@@ -65,6 +65,20 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
       vulkanSwapChain.imageCount, vulkanPipeline.descriptorSetLayout,
       vulkanImage->textureImageView, vulkanImage->textureSampler,
       vulkanImage->second_textureImageView);
+
+  // query pool createinfo
+  VkQueryPoolCreateInfo queryPoolCreateInfo{};
+  queryPoolCreateInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+  queryPoolCreateInfo.pNext = nullptr;
+  queryPoolCreateInfo.flags = 0;
+  queryPoolCreateInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
+  queryPoolCreateInfo.queryCount = 2;
+  queryPoolCreateInfo.pipelineStatistics = 0;
+
+  if (vkCreateQueryPool(vulkanDevice.logicalDevice, &queryPoolCreateInfo,
+                        nullptr, &queryPool) != VK_SUCCESS) {
+    throw std::runtime_error("failed to create vkCreateQueryPool!");
+  }
 }
 VulkanRenderer::~VulkanRenderer() {
   vkDeviceWaitIdle(vulkanDevice.logicalDevice);
@@ -243,6 +257,9 @@ void VulkanRenderer::endDrawingCommandBuffer(
                     inFlightFence) != VK_SUCCESS) {
     throw std::runtime_error("failed to submit draw command buffer!");
   }
+
+  // vkQueueWaitIdle(vulkanDevice.graphicsQueue);
+  getQueryPoolTimes();
   /*
   vkQueueWaitIdle(vulkanDevice.graphicsQueue);
 
@@ -360,7 +377,7 @@ void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
                 vulkanBuffer->uniformBuffersMemory[currentImage]);
 }
 
-void VulkanRenderer::drawFrame() {
+void VulkanRenderer::drawFrame(uint32_t queryIndex) {
   // std::cout << "Drawing frame: " << currentFrame << "\n";
   vkWaitForFences(vulkanDevice.logicalDevice, 1,
                   &vulkanSyncObject->inFlightFences[currentFrame], VK_TRUE,
@@ -393,7 +410,20 @@ void VulkanRenderer::drawFrame() {
   drawFromDescriptors(vulkanCommand->commandBuffers[currentFrame],
                       currentImage);
 
+  for (int i = 0; i < 100000; i++) {
+    drawFromDescriptors(vulkanCommand->commandBuffers[currentFrame],
+                        currentImage);
+  }
+
   endRenderPass(vulkanCommand->commandBuffers[currentFrame]);
+
+  // vkCmdWriteTimestamp(vulkanCommand->commandBuffers[currentFrame],
+  // VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool, 1);
+
+  vkCmdWriteTimestamp(vulkanCommand->commandBuffers[currentFrame],
+                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool,
+                      queryIndex);
+
   endDrawingCommandBuffer(
       vulkanCommand->commandBuffers[currentFrame],
       vulkanSyncObject->imageAvailableSemaphores[currentFrame],
@@ -426,4 +456,36 @@ void VulkanRenderer::drawFrame() {
   currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
+void VulkanRenderer::getQueryPoolTimes() {
+
+  Utils::Query queries[2]{};
+
+  const auto flags =
+      VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
+
+  std::cout << "=======================================\n";
+  std::cout << "size of queries:" << sizeof(queries) << " bytes\n";
+  std::cout << "size of queries stride:" << sizeof(*queries) << " bytes\n";
+
+  vkGetQueryPoolResults(vulkanDevice.logicalDevice, queryPool, 0, 2,
+                        sizeof(queries), static_cast<void *>(&queries[0]),
+                        sizeof(*queries), flags);
+
+  std::cout << "query0 value: " << queries[0].value << "\n";
+  std::cout << "query0 avail: " << queries[0].availability << "\n";
+
+  std::cout << "query1 value: " << queries[1].value << "\n";
+  std::cout << "query1 avail: " << queries[1].availability << "\n";
+
+  if (queries[0].availability == 1 && queries[1].availability == 1) {
+    uint64_t diff = queries[1].value - queries[0].value;
+
+    uint64_t diffNano = diff * vulkanDevice.deviceTimestampPeriod;
+
+    std::cout << "diff : " << diff << "\n";
+    std::cout << "diff in nanos: " << diffNano << "\n";
+  }
+
+  std::cout << "=======================================\n";
+}
 } // namespace VulkanStuff

@@ -290,6 +290,9 @@ void VulkanDevice::pickPhysicalDevice() {
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
     std::cout << "Picked " << deviceProperties.deviceName
               << " Vendor: " << deviceProperties.vendorID << "\n";
+
+    deviceTimestampPeriod = deviceProperties.limits.timestampPeriod;
+    std::cout << "timestampPeriod: " << deviceTimestampPeriod << "\n";
   }
 }
 

@@ -54,6 +54,9 @@ public:
   VkQueue graphicsQueue;
   VkQueue presentQueue;
 
+  // queryPool values;
+  float deviceTimestampPeriod;
+
   void *m_vkLoader{nullptr};
 
   PFN_vkCreateInstance pfn_vkCreateInstance{nullptr};

@@ -59,6 +59,9 @@ public:
 
   //=====================================
 
+  VkQueryPool queryPool;
+  //=====================================
+
   VulkanRenderer(SDL_Window *sdlWindow);
   ~VulkanRenderer();
 
@@ -88,6 +91,8 @@ public:
 
   void updateUniformBuffer(uint32_t currentImage);
 
-  void drawFrame();
+  void drawFrame(uint32_t queryIndex);
+
+  void getQueryPoolTimes();
 };
 } // namespace VulkanStuff
