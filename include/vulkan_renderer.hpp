@@ -94,5 +94,6 @@ public:
   void drawFrame(uint32_t queryIndex);
 
   void getQueryPoolTimes();
+  void resetQueryPool();
 };
 } // namespace VulkanStuff

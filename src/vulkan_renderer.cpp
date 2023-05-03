@@ -485,10 +485,14 @@ void VulkanRenderer::getQueryPoolTimes() {
     std::cout << "diff : " << diff << "\n";
     std::cout << "diff in nanos: " << diffNano << "\n";
 
-    float diffSeconds =  diffNano/1000000000.0;
+    float diffSeconds = diffNano / 1000000000.0;
     std::cout << "diff in s: " << diffSeconds << "\n";
   }
 
   std::cout << "=======================================\n";
+}
+
+void VulkanRenderer::resetQueryPool() {
+  vkResetQueryPool(vulkanDevice.logicalDevice, queryPool, 0, 2);
 }
 } // namespace VulkanStuff
