@@ -6,10 +6,13 @@ namespace VulkanStuff {
 VulkanImage::VulkanImage(VkPhysicalDevice inputPhysicalDevice,
 
                          VkDevice inputDevice, VkQueue inputGraphicsQueue,
-                         VkCommandPool inputCommandPool, VkExtent2D inputExtent)
+                         VkCommandPool inputCommandPool, VkExtent2D inputExtent, VkFormat inputFormat)
     : device{inputDevice}, physicalDevice{inputPhysicalDevice},
       graphicsQueue{inputGraphicsQueue}, commandPool{inputCommandPool},
       swapChainExtent{inputExtent} {
+
+  swapchainFormat = inputFormat;
+
   createTextureImage("textures/texture.jpg", textureImage, textureImageMemory,
                      false);
   textureImageView = Utils::createImageView(
@@ -24,6 +27,7 @@ VulkanImage::VulkanImage(VkPhysicalDevice inputPhysicalDevice,
 
   createTextureSampler();
   createDepthResources();
+  createColorResources();
 }
 
 VulkanImage::~VulkanImage() {
@@ -45,7 +49,7 @@ VulkanImage::~VulkanImage() {
 void VulkanImage::createImage(uint32_t width, uint32_t height, VkFormat format,
                               VkImageTiling tiling, VkImageUsageFlags usage,
                               VkMemoryPropertyFlags properties, VkImage &image,
-                              VkDeviceMemory &imageMemory, bool isExplicit) {
+                              VkDeviceMemory &imageMemory, bool isExplicit, VkSampleCountFlagBits numSamples) {
   // Now create the VKImage
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -65,7 +69,7 @@ void VulkanImage::createImage(uint32_t width, uint32_t height, VkFormat format,
 
   imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-  imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+  imageInfo.samples = numSamples;
 
   // VkImageFormatListCreateInfo formatList{};
   // formatList.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO;
@@ -249,7 +253,7 @@ void VulkanImage::createTextureImage(const char *texPath, VkImage &image,
   createImage(texWidth, texHeight, VK_FORMAT_A8B8G8R8_UNORM_PACK32,
               VK_IMAGE_TILING_OPTIMAL,
               VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, image, imageMemory, false);
+              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, image, imageMemory, false, VK_SAMPLE_COUNT_1_BIT);
 
   transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB,
                         VK_IMAGE_LAYOUT_UNDEFINED,
@@ -314,13 +318,25 @@ void VulkanImage::createDepthResources() {
   createImage(
       swapChainExtent.width, swapChainExtent.height, depthFormat,
       VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, false);
+      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory, false, msaaSamples);
 
   depthImageView = Utils::createImageView(device, depthImage, depthFormat,
                                           VK_IMAGE_ASPECT_DEPTH_BIT);
 
   transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
                         VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+}
+
+void VulkanImage::createColorResources() {
+    VkFormat colorFormat = swapchainFormat;
+
+    
+    createImage(swapChainExtent.width, swapChainExtent.height, colorFormat,
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory, false, msaaSamples); 
+    
+    colorImageView = Utils::createImageView(device, colorImage,     colorFormat,     VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 } // namespace VulkanStuff

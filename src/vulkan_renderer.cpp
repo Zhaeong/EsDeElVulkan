@@ -17,7 +17,7 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
   vulkanImage =
       new VulkanImage(vulkanDevice.physicalDevice, vulkanDevice.logicalDevice,
                       vulkanDevice.graphicsQueue, vulkanCommand->commandPool,
-                      vulkanSwapChain.swapChainExtent);
+                      vulkanSwapChain.swapChainExtent, vulkanSwapChain.swapChainImageFormat);
 
   vulkanPipeline = new VulkanPipeline( vulkanDevice.physicalDevice,
                                 vulkanDevice.logicalDevice,

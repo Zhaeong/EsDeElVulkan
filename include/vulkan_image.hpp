@@ -39,15 +39,24 @@ public:
   VkDeviceMemory depthImageMemory;
   VkImageView depthImageView;
 
+  VkFormat swapchainFormat;
+
+  VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+  // Color image
+  VkImage colorImage;
+  VkDeviceMemory colorImageMemory;
+  VkImageView colorImageView;
+
+
   VulkanImage(VkPhysicalDevice inputPhysicalDevice, VkDevice inputDevice,
               VkQueue inputGraphicsQueue, VkCommandPool inputCommandPool,
-              VkExtent2D inputExtent);
+              VkExtent2D inputExtent, VkFormat inputFormat);
   ~VulkanImage();
 
   void createImage(uint32_t width, uint32_t height, VkFormat format,
                    VkImageTiling tiling, VkImageUsageFlags usage,
                    VkMemoryPropertyFlags properties, VkImage &image,
-                   VkDeviceMemory &imageMemory, bool isExplicit);
+                   VkDeviceMemory &imageMemory, bool isExplicit, VkSampleCountFlagBits numSamples);
 
   void transitionImageLayout(VkImage image, VkFormat format,
                              VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -61,5 +70,6 @@ public:
   void createTextureSampler();
 
   void createDepthResources();
+  void createColorResources();
 };
 } // namespace VulkanStuff
