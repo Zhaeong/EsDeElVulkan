@@ -400,9 +400,23 @@ void VulkanDevice::createLogicalDevice() {
     createInfo.enabledLayerCount = 0;
   }
   // Query vk12 features
-  VkPhysicalDeviceVulkan12Features vk12Features{};
-  vk12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
-  createInfo.pNext = &vk12Features;
+  //VkPhysicalDeviceVulkan12Features vk12Features{};
+  //vk12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+  //createInfo.pNext = &vk12Features;
+
+  VkPhysicalDeviceExtendedDynamicState3FeaturesEXT extended_dynamic_state3_features{};
+  extended_dynamic_state3_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT;
+  extended_dynamic_state3_features.extendedDynamicState3RasterizationSamples = true;
+  extended_dynamic_state3_features.extendedDynamicState3PolygonMode = true;
+  extended_dynamic_state3_features.extendedDynamicState3AlphaToCoverageEnable = true;
+  extended_dynamic_state3_features.extendedDynamicState3SampleMask = true;
+  extended_dynamic_state3_features.extendedDynamicState3ColorBlendEnable = true;
+  extended_dynamic_state3_features.extendedDynamicState3ColorBlendEquation = true;
+  extended_dynamic_state3_features.extendedDynamicState3LogicOpEnable = true;
+  extended_dynamic_state3_features.extendedDynamicState3ColorWriteMask = true;
+  //extended_dynamic_state3_features.extendedDynamicState3AlphaToOneEnable = true;
+
+  createInfo.pNext = &extended_dynamic_state3_features;
 
   if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) !=
       VK_SUCCESS) {

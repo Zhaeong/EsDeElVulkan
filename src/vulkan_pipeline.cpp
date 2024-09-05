@@ -232,6 +232,13 @@ void VulkanPipeline::createGraphicsPipeline() {
   //   static_cast<uint32_t>(dynamicStates.size()); dynamicState.pDynamicStates
   //   = dynamicStates.data();
 
+
+  VkPipelineDynamicStateCreateInfo dynamic_state_info{};
+  dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+  const VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT };
+  dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(std::size(dynamicStates));
+  dynamic_state_info.pDynamicStates = dynamicStates;
+
   // Pipeline layout
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -276,9 +283,12 @@ void VulkanPipeline::createGraphicsPipeline() {
   pipelineInfo.pViewportState = &viewportState;
   pipelineInfo.pRasterizationState = &rasterizer;
   pipelineInfo.pMultisampleState = &multisampling;
+  //pipelineInfo.pMultisampleState = nullptr;
   pipelineInfo.pDepthStencilState = &depthStencil; // Optional
   pipelineInfo.pColorBlendState = &colorBlending;
-  pipelineInfo.pDynamicState = nullptr; // Optional
+  //pipelineInfo.pDynamicState = nullptr; // Optional
+  pipelineInfo.pDynamicState = &dynamic_state_info; // Optional
+  
 
   pipelineInfo.layout = pipelineLayout;
 

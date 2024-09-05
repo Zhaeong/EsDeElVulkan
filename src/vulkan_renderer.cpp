@@ -412,6 +412,9 @@ void VulkanRenderer::drawFrame(uint32_t queryIndex) {
 
   beginDrawingCommandBuffer(vulkanCommand->commandBuffers[currentFrame]);
 
+  PFN_vkCmdSetRasterizationSamplesEXT vkCmdSetRasterizationSamplesEXT = PFN_vkCmdSetRasterizationSamplesEXT(vkGetDeviceProcAddr(vulkanDevice.logicalDevice, "vkCmdSetRasterizationSamplesEXT"));
+  vkCmdSetRasterizationSamplesEXT(vulkanCommand->commandBuffers[currentFrame], VK_SAMPLE_COUNT_8_BIT);
+
   beginRenderPass(vulkanCommand->commandBuffers[currentFrame], currentImage);
 
   //  drawObjects(vulkanCommand->commandBuffers[currentFrame]);
