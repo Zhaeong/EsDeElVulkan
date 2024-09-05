@@ -31,13 +31,7 @@ public:
                                   vulkanDevice.logicalDevice,
                                   vulkanDevice.surface};
 
-  VulkanPipeline vulkanPipeline{vulkanDevice.physicalDevice,
-                                vulkanDevice.logicalDevice,
-                                vulkanDevice.surface,
-                                vulkanDevice.graphicsQueue,
-                                vulkanSwapChain.swapChainExtent,
-                                vulkanSwapChain.swapChainImageFormat,
-                                vulkanSwapChain.swapChainImageViews};
+  
 
   // uint32_t currentImageIndex;
   const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -49,6 +43,8 @@ public:
   VulkanSyncObject *vulkanSyncObject;
   VulkanBuffer *vulkanBuffer;
   VulkanImage *vulkanImage;
+
+  VulkanPipeline* vulkanPipeline;
 
   std::vector<VkFramebuffer> swapChainFramebuffers;
 

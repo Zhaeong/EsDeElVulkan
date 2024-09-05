@@ -19,10 +19,18 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
                       vulkanDevice.graphicsQueue, vulkanCommand->commandPool,
                       vulkanSwapChain.swapChainExtent);
 
+  vulkanPipeline = new VulkanPipeline( vulkanDevice.physicalDevice,
+                                vulkanDevice.logicalDevice,
+                                vulkanDevice.surface,
+                                vulkanDevice.graphicsQueue,
+                                vulkanSwapChain.swapChainExtent,
+                                vulkanSwapChain.swapChainImageFormat,
+                                vulkanSwapChain.swapChainImageViews );
+
   swapChainFramebuffers = Utils::createFramebuffers(
-      vulkanDevice.logicalDevice, vulkanPipeline.swapChainImageViews,
-      vulkanImage->depthImageView, vulkanPipeline.vulkanRenderPass->renderPass,
-      vulkanPipeline.swapChainExtent);
+      vulkanDevice.logicalDevice, vulkanPipeline->swapChainImageViews,
+      vulkanImage->depthImageView, vulkanPipeline->vulkanRenderPass->renderPass,
+      vulkanPipeline->swapChainExtent);
 
   // vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
   //             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
@@ -62,7 +70,7 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
   vulkanBuffer->createUniformBuffers(vulkanSwapChain.imageCount);
   vulkanBuffer->createDescriptorPool(vulkanSwapChain.imageCount);
   vulkanBuffer->createDescriptorSets(
-      vulkanSwapChain.imageCount, vulkanPipeline.descriptorSetLayout,
+      vulkanSwapChain.imageCount, vulkanPipeline->descriptorSetLayout,
       vulkanImage->textureImageView, vulkanImage->textureSampler,
       vulkanImage->second_textureImageView);
 
@@ -98,13 +106,13 @@ void VulkanRenderer::beginRenderPass(VkCommandBuffer commandBuffer,
                                      uint32_t imageIndex) {
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-  renderPassInfo.renderPass = vulkanPipeline.vulkanRenderPass->renderPass;
+  renderPassInfo.renderPass = vulkanPipeline->vulkanRenderPass->renderPass;
   // renderPassInfo.framebuffer =
-  // vulkanPipeline.swapChainFramebuffers[imageIndex];
+  // vulkanPipeline->swapChainFramebuffers[imageIndex];
   renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
 
   renderPassInfo.renderArea.offset = {0, 0};
-  renderPassInfo.renderArea.extent = vulkanPipeline.swapChainExtent;
+  renderPassInfo.renderArea.extent = vulkanPipeline->swapChainExtent;
 
   std::vector<VkClearValue> clearValues{};
   VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
@@ -124,13 +132,13 @@ void VulkanRenderer::endRenderPass(VkCommandBuffer commandBuffer) {
 
 void VulkanRenderer::drawObjects(VkCommandBuffer commandBuffer) {
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    vulkanPipeline.graphicsPipeline);
+                    vulkanPipeline->graphicsPipeline);
   vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 }
 
 void VulkanRenderer::drawFromVertices(VkCommandBuffer commandBuffer) {
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    vulkanPipeline.graphicsPipeline);
+                    vulkanPipeline->graphicsPipeline);
 
   VkBuffer vertexBuffers[] = {vulkanBuffer->vertexBuffer};
   VkDeviceSize offsets[] = {0};
@@ -141,7 +149,7 @@ void VulkanRenderer::drawFromVertices(VkCommandBuffer commandBuffer) {
 
 void VulkanRenderer::drawFromIndices(VkCommandBuffer commandBuffer) {
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    vulkanPipeline.graphicsPipeline);
+                    vulkanPipeline->graphicsPipeline);
 
   VkBuffer vertexBuffers[] = {vulkanBuffer->vertexBuffer};
   VkDeviceSize offsets[] = {0};
@@ -156,7 +164,7 @@ void VulkanRenderer::drawFromIndices(VkCommandBuffer commandBuffer) {
 void VulkanRenderer::drawFromDescriptors(VkCommandBuffer commandBuffer,
                                          int imageIndex) {
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    vulkanPipeline.graphicsPipeline);
+                    vulkanPipeline->graphicsPipeline);
 
   VkBuffer vertexBuffers[] = {vulkanBuffer->vertexBuffer};
   VkDeviceSize offsets[] = {0};
@@ -165,7 +173,7 @@ void VulkanRenderer::drawFromDescriptors(VkCommandBuffer commandBuffer,
                        VK_INDEX_TYPE_UINT16);
 
   vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          vulkanPipeline.pipelineLayout, 0, 1,
+                          vulkanPipeline->pipelineLayout, 0, 1,
                           &vulkanBuffer->descriptorSets[imageIndex], 0,
                           nullptr);
 
@@ -178,11 +186,11 @@ void VulkanRenderer::drawFromDescriptors(VkCommandBuffer commandBuffer,
 
   // Second object
   // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-  //                         vulkanPipeline.pipelineLayout, 0, 1,
+  //                         vulkanPipeline->pipelineLayout, 0, 1,
   //                         &vulkanBuffer->descriptorSets[0], 0, nullptr);
 
   vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          vulkanPipeline.pipelineLayout, 0, 1,
+                          vulkanPipeline->pipelineLayout, 0, 1,
                           &vulkanBuffer->secondDescriptorSet, 0, nullptr);
 
   vkCmdDrawIndexed(commandBuffer, 3, 1, 6, 0, 0);
@@ -271,16 +279,16 @@ void VulkanRenderer::endDrawingCommandBuffer(
 }
 
 void VulkanRenderer::cleanupSwapChain() {
-  vkDestroyPipeline(vulkanDevice.logicalDevice, vulkanPipeline.graphicsPipeline,
+  vkDestroyPipeline(vulkanDevice.logicalDevice, vulkanPipeline->graphicsPipeline,
                     nullptr);
   vkDestroyPipelineLayout(vulkanDevice.logicalDevice,
-                          vulkanPipeline.pipelineLayout, nullptr);
+                          vulkanPipeline->pipelineLayout, nullptr);
 
   for (auto framebuffer : swapChainFramebuffers) {
     vkDestroyFramebuffer(vulkanDevice.logicalDevice, framebuffer, nullptr);
   }
 
-  delete vulkanPipeline.vulkanRenderPass;
+  delete vulkanPipeline->vulkanRenderPass;
 
   for (size_t i = 0; i < vulkanSwapChain.swapChainImageViews.size(); i++) {
     vkDestroyImageView(vulkanDevice.logicalDevice,
@@ -319,24 +327,24 @@ void VulkanRenderer::recreateSwapChain() {
   vulkanSwapChain.createSwapChainImageViews();
 
   // recreate renderpass
-  vulkanPipeline.vulkanRenderPass = new VulkanRenderPass(
+  vulkanPipeline->vulkanRenderPass = new VulkanRenderPass(
       vulkanDevice.physicalDevice, vulkanDevice.logicalDevice,
       vulkanSwapChain.swapChainImageFormat);
 
   // reassign swapchain vars for framebuffers recreation
-  vulkanPipeline.swapChainImageFormat = vulkanSwapChain.swapChainImageFormat;
-  vulkanPipeline.swapChainImageViews = vulkanSwapChain.swapChainImageViews;
-  vulkanPipeline.swapChainExtent = vulkanSwapChain.swapChainExtent;
+  vulkanPipeline->swapChainImageFormat = vulkanSwapChain.swapChainImageFormat;
+  vulkanPipeline->swapChainImageViews = vulkanSwapChain.swapChainImageViews;
+  vulkanPipeline->swapChainExtent = vulkanSwapChain.swapChainExtent;
 
-  vulkanPipeline.createGraphicsPipeline();
+  vulkanPipeline->createGraphicsPipeline();
 
   vulkanImage->swapChainExtent = vulkanSwapChain.swapChainExtent;
   vulkanImage->createDepthResources();
 
   swapChainFramebuffers = Utils::createFramebuffers(
-      vulkanDevice.logicalDevice, vulkanPipeline.swapChainImageViews,
-      vulkanImage->depthImageView, vulkanPipeline.vulkanRenderPass->renderPass,
-      vulkanPipeline.swapChainExtent);
+      vulkanDevice.logicalDevice, vulkanPipeline->swapChainImageViews,
+      vulkanImage->depthImageView, vulkanPipeline->vulkanRenderPass->renderPass,
+      vulkanPipeline->swapChainExtent);
 }
 
 void VulkanRenderer::recreateVertexBuffer(
