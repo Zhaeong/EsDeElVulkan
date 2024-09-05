@@ -282,13 +282,13 @@ std::vector<VkFramebuffer>
 createFramebuffers(VkDevice device,
                    std::vector<VkImageView> swapChainImageViews,
                    VkImageView depthImageView, VkRenderPass renderPass,
-                   VkExtent2D swapChainExtent) {
+                   VkExtent2D swapChainExtent, VkImageView colorImageView) {
 
   std::vector<VkFramebuffer> swapChainFramebuffers{};
   swapChainFramebuffers.resize(swapChainImageViews.size());
   for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-    std::vector<VkImageView> attachments = {swapChainImageViews[i],
-                                            depthImageView};
+    std::vector<VkImageView> attachments = { colorImageView, depthImageView, swapChainImageViews[i]
+                                            };
 
     VkFramebufferCreateInfo framebufferInfo{};
     // framebufferInfo.flags = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT;

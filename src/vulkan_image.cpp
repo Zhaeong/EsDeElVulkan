@@ -43,6 +43,10 @@ VulkanImage::~VulkanImage() {
   vkFreeMemory(device, depthImageMemory, nullptr);
   vkDestroyImageView(device, depthImageView, nullptr);
 
+  vkDestroyImageView(device, colorImageView, nullptr);
+  vkDestroyImage(device, colorImage, nullptr);
+  vkFreeMemory(device, colorImageMemory, nullptr);
+
   vkDestroySampler(device, textureSampler, nullptr);
 }
 

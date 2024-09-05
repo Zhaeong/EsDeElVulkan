@@ -30,7 +30,7 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
   swapChainFramebuffers = Utils::createFramebuffers(
       vulkanDevice.logicalDevice, vulkanPipeline->swapChainImageViews,
       vulkanImage->depthImageView, vulkanPipeline->vulkanRenderPass->renderPass,
-      vulkanPipeline->swapChainExtent);
+      vulkanPipeline->swapChainExtent, vulkanImage->colorImageView);
 
   // vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
   //             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
@@ -344,7 +344,7 @@ void VulkanRenderer::recreateSwapChain() {
   swapChainFramebuffers = Utils::createFramebuffers(
       vulkanDevice.logicalDevice, vulkanPipeline->swapChainImageViews,
       vulkanImage->depthImageView, vulkanPipeline->vulkanRenderPass->renderPass,
-      vulkanPipeline->swapChainExtent);
+      vulkanPipeline->swapChainExtent, vulkanImage->colorImageView);
 }
 
 void VulkanRenderer::recreateVertexBuffer(
@@ -368,7 +368,7 @@ void VulkanRenderer::updateUniformBuffer(uint32_t currentImage) {
   ubo.model = glm::rotate(glm::mat4(1.0f), rotation * glm::radians(90.0f),
                           glm::vec3(0.0f, 0.0f, 1.0f));
   ubo.view =
-      glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::lookAt(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                   glm::vec3(0.0f, 0.0f, 1.0f));
 
   ubo.proj = glm::perspective(glm::radians(45.0f),

@@ -132,7 +132,7 @@ std::vector<VkFramebuffer>
 createFramebuffers(VkDevice device,
                    std::vector<VkImageView> swapChainImageViews,
                    VkImageView depthImageView, VkRenderPass renderPass,
-                   VkExtent2D swapChainExtent);
+                   VkExtent2D swapChainExtent, VkImageView colorImageView);
 bool hasStencilComponent(VkFormat format);
 
 VkFormat findSupportedFormat(VkPhysicalDevice physicalDevice,
