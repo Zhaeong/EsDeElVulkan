@@ -14,7 +14,7 @@ VulkanRenderPass::~VulkanRenderPass() {
 
 void VulkanRenderPass::createRenderPass() {
 
-  VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_2_BIT;
+  VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_8_BIT;
 
   VkAttachmentDescription colorAttachment{};
   colorAttachment.format = swapChainImageFormat;

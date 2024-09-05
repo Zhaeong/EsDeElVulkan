@@ -41,7 +41,7 @@ public:
 
   VkFormat swapchainFormat;
 
-  VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_2_BIT;
+  VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_8_BIT;
   // Color image
   VkImage colorImage;
   VkDeviceMemory colorImageMemory;
