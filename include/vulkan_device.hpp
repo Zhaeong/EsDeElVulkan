@@ -32,7 +32,7 @@ public:
       "VK_LAYER_KHRONOS_validation"};
 
   // This needs to be false else other layers don't work
-  const bool enableValidationLayers = false;
+  const bool enableValidationLayers = true;
 
   VkDebugUtilsMessengerEXT debugMessenger;
 

@@ -31,11 +31,11 @@ void Game::run() {
     std::string event = getEvent();
     // std::cout << "Eventer: " << event << "\n";
     vulkanRenderer->drawFrame(0);
-    vulkanRenderer->drawFrame(1);
+    //vulkanRenderer->drawFrame(1);
 
     // vulkanRenderer->getQueryPoolTimes();
 
-    exit(0);
+   //exit(0);
 
     // SDL_Delay(10000);
     //   isRunning = false;

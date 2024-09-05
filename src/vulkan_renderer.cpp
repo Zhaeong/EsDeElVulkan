@@ -67,6 +67,7 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
       vulkanImage->second_textureImageView);
 
   // query pool createinfo
+  /*
   VkQueryPoolCreateInfo queryPoolCreateInfo{};
   queryPoolCreateInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
   queryPoolCreateInfo.pNext = nullptr;
@@ -79,6 +80,7 @@ VulkanRenderer::VulkanRenderer(SDL_Window *sdlWindow) : window{sdlWindow} {
                         nullptr, &queryPool) != VK_SUCCESS) {
     throw std::runtime_error("failed to create vkCreateQueryPool!");
   }
+  */
 }
 VulkanRenderer::~VulkanRenderer() {
   vkDeviceWaitIdle(vulkanDevice.logicalDevice);
@@ -259,7 +261,7 @@ void VulkanRenderer::endDrawingCommandBuffer(
   }
 
   vkQueueWaitIdle(vulkanDevice.graphicsQueue);
-  getQueryPoolTimes();
+  //getQueryPoolTimes();
   /*
   vkQueueWaitIdle(vulkanDevice.graphicsQueue);
 
@@ -409,20 +411,14 @@ void VulkanRenderer::drawFrame(uint32_t queryIndex) {
   // drawFromIndices(vulkanCommand->commandBuffers[currentFrame]);
   drawFromDescriptors(vulkanCommand->commandBuffers[currentFrame],
                       currentImage);
-
-  for (int i = 0; i < 1000000; i++) {
     drawFromDescriptors(vulkanCommand->commandBuffers[currentFrame],
                         currentImage);
-  }
 
   endRenderPass(vulkanCommand->commandBuffers[currentFrame]);
 
   // vkCmdWriteTimestamp(vulkanCommand->commandBuffers[currentFrame],
   // VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool, 1);
 
-  vkCmdWriteTimestamp(vulkanCommand->commandBuffers[currentFrame],
-                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool,
-                      queryIndex);
 
   endDrawingCommandBuffer(
       vulkanCommand->commandBuffers[currentFrame],
